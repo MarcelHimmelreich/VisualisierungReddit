@@ -13,7 +13,7 @@
   - [X] Create Roadmap
 - [ ] Create Concept
 - [ ] Model View Controller
-  - [ ]Model
+  - [ ] Model
     - [ ] Load Json Data
     - [ ] Create Data Structure
   - [ ] View
