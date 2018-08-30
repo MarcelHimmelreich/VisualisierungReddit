@@ -15,11 +15,12 @@
 - [ ] Model View Controller
   - [ ] Model
     - [ ] Load Json Data
-    - [ ] Create Data Structure
+    - [ ] Create Data Structure for Graph
   - [ ] View
     - [ ] Create User Interface
       - [ ] Main Menu
       - [ ] Graph Menu
+      - [ ] User Interaction
     - [ ] Create Shader
     - [ ] Create Graph Mesh
   - [ ] Controller
@@ -30,4 +31,8 @@
     - [ ] Create Vertex Structure
     - [ ] Create Edge Structure
       - [ ] Control Graph Mesh
+- [ ] Main Scene
+  - [ ] Lightning Settings
+  - [ ] Skybox
+  - [ ] Project Setting
 <br/>
