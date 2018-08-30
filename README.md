@@ -11,7 +11,7 @@
   - [X] Create Unity Project
   - [X] Create Readme
   - [X] Create Roadmap
-- [ ] Create Concept
+- [X] Create Concept
 - [ ] Model View Controller
   - [ ] Model
     - [ ] Load Json Data
