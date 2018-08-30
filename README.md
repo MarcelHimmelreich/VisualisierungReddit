@@ -31,6 +31,9 @@
     - [ ] Create Vertex Structure
     - [ ] Create Edge Structure
       - [ ] Control Graph Mesh
+- [ ] Camera
+  - [ ] Player Movement
+  - [ ] Toggle Camera Setting  
 - [ ] Main Scene
   - [ ] Lightning Settings
   - [ ] Skybox
