@@ -5,9 +5,9 @@ using UnityEngine;
 public class Model : MonoBehaviour {
 
     //Controller
-    GameObject GraphManager;
+    public GameObject GraphManager;
     //View
-    GameObject UserInterface;
+    public GameObject UserInterface;
 
 	// Use this for initialization
 	void Start () {

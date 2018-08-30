@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class GraphManager : MonoBehaviour {
     //View
-    GameObject UserInterface;
+    public GameObject UserInterface;
     //Model
-    GameObject Model;
+    public GameObject Model;
 
 	// Use this for initialization
 	void Start () {

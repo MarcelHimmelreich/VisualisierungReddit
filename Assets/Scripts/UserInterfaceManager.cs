@@ -5,10 +5,10 @@ using UnityEngine;
 public class UserInterfaceManager : MonoBehaviour {
 
     //Controller
-    GameObject GraphManager;
+    public GameObject GraphManager;
 
     //View
-    GameObject Model;
+    public GameObject Model;
 
 	// Use this for initialization
 	void Start () {
