@@ -20,7 +20,7 @@ public class Model : MonoBehaviour {
 	}
 
     //Load Json Data and stores it
-    void LoadJson() {
+    public void LoadJson() {
 
     }
 
