@@ -10,6 +10,8 @@ public class UserInterfaceManager : MonoBehaviour {
     //View
     public GameObject Model;
 
+    //MetaData
+
 	// Use this for initialization
 	void Start () {
 		
@@ -19,6 +21,10 @@ public class UserInterfaceManager : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    void GetMarkedVertices() {
+
+    }
 
 
 }

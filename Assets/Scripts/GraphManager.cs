@@ -1,14 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using QuickType;
 
 public class GraphManager : MonoBehaviour {
-    //View
+
+    public delegate void ForceGraph();
+    public static event ForceGraph ApplyForce;
+    public static event ForceGraph CreateParentComments;
+
+    // View
     public GameObject UserInterface;
-    //Model
+    public UserInterfaceManager UIComponent;
+    // Model
     public GameObject Model;
-    //Shader Manager
+    public Model ModelComponent;
+    // Shader Manager
     public GameObject ShaderManager;
+    public ShaderManager ShaderManagerComponent;
+
+    // Graph
+    public List<GameObject> Submission;
+
+    // Vertex
+    public List<GameObject> Vertices;
+
+    // 
+    public GameObject submission_prefab;
 
 	// Use this for initialization
 	void Start () {
@@ -19,4 +37,48 @@ public class GraphManager : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void SetDepth() {
+        foreach (GameObject submission in Submission) {
+            submission.GetComponent<Graph>().SetDepth();
+        }
+    }
+
+    public void MakeParents() {
+        foreach (GameObject submission in Submission) {
+            submission.GetComponent<Graph>().MakeParents();
+        }
+    }
+
+    public void CreateGraph(int value = -1) {
+        Debug.Log("Creating Force Graph...");
+        if (value >= 0)
+        {
+            Submission submission = Model.GetComponent<Model>().subreddit.Submission[value];
+            GameObject new_submission = Instantiate(submission_prefab);
+            new_submission.GetComponent<Graph>().submission = submission;
+            new_submission.GetComponent<Graph>().CreateGraph(submission);
+            Submission.Add(new_submission);
+        }
+        else
+        {
+            foreach (Submission submission in Model.GetComponent<Model>().subreddit.Submission)
+            {
+                Debug.Log("submission: " + submission);
+                GameObject new_submission = Instantiate(submission_prefab);
+                new_submission.GetComponent<Graph>().submission = submission;
+                new_submission.GetComponent<Graph>().CreateGraph(submission);
+                Submission.Add(new_submission);
+            }
+        }
+        Debug.Log("Force Graph Creation complete!");
+        Debug.Log("Configure Force Graph...");
+        SetDepth();
+        MakeParents();
+        CreateParentComments();
+        Debug.Log("Force Graph Configuration complete!");
+
+    }
+
+
 }
