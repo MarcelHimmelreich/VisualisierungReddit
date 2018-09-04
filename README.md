@@ -1,4 +1,4 @@
-# Visualisierung von Kommunikationsstrukturen von Reddit Daten durch einen kräftegerichteten 3D Graphen mit Unity
+# Visualization of Reddit communication data with force directed 3D graphs using Unity
 
 
 
