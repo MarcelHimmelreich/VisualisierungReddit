@@ -7,6 +7,7 @@ public class Vertex : MonoBehaviour {
 
     public delegate void vertexsender(int depth, int value);
     public static event vertexsender SendVerticesCount;
+    public static event vertexsender SendVerticesDepthCount;
 
     //Reddit Comment Data Structure
     public Comment comment;
@@ -37,6 +38,7 @@ public class Vertex : MonoBehaviour {
     public float rangeDistance = 1;
     public float maxneighbourdistance = 5;
     public float neighbourrangeDistance = 1;
+    public float minvelocity = 0.1f;
     public bool apply = true;
     public bool checkforce = true;
     public bool drawline = true;
@@ -69,7 +71,7 @@ public class Vertex : MonoBehaviour {
             if (CheckNeighbourDistance() && !checkforce)
             {
                 ApplyForceNeighbour();
-
+                CheckVelocity();
             }
 
             if (CheckParentDistance()) {
@@ -88,6 +90,7 @@ public class Vertex : MonoBehaviour {
     void OnEnable()
     {
         Graph.count += sendVerticesCount;
+        Graph.ApplyForce += SetApplyByDepth;
         GraphManager.CreateParentComments += GetParentComments;
         ShaderManager.SendMaterial += SetMaterial;
     }
@@ -95,19 +98,17 @@ public class Vertex : MonoBehaviour {
     void OnDisable()
     {
         Graph.count -= sendVerticesCount;
+        Graph.ApplyForce -= SetApplyByDepth;
         GraphManager.CreateParentComments -= GetParentComments;
         ShaderManager.SendMaterial -= SetMaterial;
     }
 
-    void OnTriggerEnter(Collider collider) {
-        NearNeighbour.Add(collider.gameObject);
-
-    }
-
-    void OnTriggerExit(Collider collider) {
-        NearNeighbour.Remove(collider.gameObject);
-
-
+    public void SetApplyByDepth(int _depth)
+    {
+        if (depth == _depth)
+        {
+            apply = true;
+        }
     }
 
     public void SetLine(){
@@ -120,6 +121,7 @@ public class Vertex : MonoBehaviour {
         GetComponent<SphereCollider>().radius = radius;
 
     }
+
     public void SetMaxDistance(float distance) {
         if (distance == 0) {
 
@@ -132,8 +134,17 @@ public class Vertex : MonoBehaviour {
 
     }
 
+
+    public void CheckVelocity() {
+        if (rigidbody.velocity.magnitude < minvelocity)
+        {
+            apply = false;
+            Origin.GetComponent<Graph>().AddDepthDone(depth);
+        }
+    }
+
     public bool CheckNeighbourDistance(){
-        float distance = Vector3.Distance(NearNeighbour[closestneighbour].transform.position, transform.position);
+        float distance = Vector3.Distance(ParentComments[closestneighbour].transform.position, transform.position);
         if (distance < (minDistance - rangeDistance))
         {
             return true;
@@ -176,9 +187,7 @@ public class Vertex : MonoBehaviour {
                 if (transform_neighbor.GetComponent<Vertex>().comment.Id != comment.Id)
                 {
                     Vector3 direction = transform_neighbor.transform.position + transform.position;
-                    Debug.Log("Direction: " + direction);
                     n_velocity.Add(direction);
-                    Debug.Log("Add Neighbour direction Graph");
                 }
                 
                 
@@ -191,9 +200,7 @@ public class Vertex : MonoBehaviour {
                 if (transform_neighbor.GetComponent<Vertex>().comment.Id != comment.Id)
                 {
                     Vector3 direction = transform_neighbor.transform.position + transform.position;
-                    Debug.Log("Direction: " + direction);
                     n_velocity.Add(direction);
-                    Debug.Log("Add Neighbour direction");
                 }
             }
         }
@@ -242,7 +249,7 @@ public class Vertex : MonoBehaviour {
                     }
 
                     Vector3 direction = (ParentComments[closestneighbour].transform.position - transform.position).normalized;
-                    Debug.Log(direction);
+                    
                     if (!float.IsNaN(direction.x) && !float.IsNaN(direction.y) && !float.IsNaN(direction.z))
                     {
                         neighbourdirection = direction;
@@ -259,10 +266,10 @@ public class Vertex : MonoBehaviour {
 
     public List<float> GetClosestNeighbour() {
         List<float> list = new List<float>();
-        for(int i = 0;i<NearNeighbour.Count;++i){
-            if (NearNeighbour[i].GetComponent<Vertex>().comment.Id != comment.Id)
+        for(int i = 0;i<ParentComments.Count;++i){
+            if (ParentComments[i].GetComponent<Vertex>().comment.Id != comment.Id)
             {
-                list.Add(Vector3.Distance(NearNeighbour[i].transform.position, transform.position));
+                list.Add(Vector3.Distance(ParentComments[i].transform.position, transform.position));
             }
             else
             {
@@ -276,6 +283,10 @@ public class Vertex : MonoBehaviour {
     public void sendVerticesCount() {
             int vertices_count = getVerticesCount();
             SendVerticesCount(depth, vertices_count);
+    }
+
+    public void sendVerticesDepthCount() {
+        SendVerticesDepthCount(depth, Comments.Count);
     }
 
     public void SetDepth(int new_depth) {
@@ -300,6 +311,18 @@ public class Vertex : MonoBehaviour {
         }
         comment_count = count;
         return ++count;
+    }
+
+    public void getVerticesDepthCount()
+    {
+        if (Comments.Count > 0)
+        {
+            sendVerticesDepthCount();
+            foreach (GameObject vertex in Comments)
+            {
+                vertex.GetComponent<Vertex>().getVerticesDepthCount();
+            }
+        }
     }
 
     public List<GameObject> CreateComment(Comment comment, GameObject parent, GameObject origin)

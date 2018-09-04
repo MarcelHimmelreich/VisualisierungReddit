@@ -24,7 +24,6 @@ GameObject:
   - component: {fileID: 114924350647140430}
   - component: {fileID: 54094890495327332}
   - component: {fileID: 120509257089336296}
-  - component: {fileID: 135748361647819894}
   m_Layer: 0
   m_Name: Vertex
   m_TagString: Untagged
@@ -95,8 +94,8 @@ Rigidbody:
   m_GameObject: {fileID: 1449240876399500}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 2
-  m_AngularDrag: 0.05
+  m_Drag: 5
+  m_AngularDrag: 5
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -126,19 +125,21 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   velocity_neighbor: []
   neighbourdistance: []
-  force: 50
-  force_neighbor: 50
-  force_sphere: 50
+  force: 250
+  force_neighbor: 250
+  force_sphere: 100
   maxDistance: 50
   minDistance: 30
   rangeDistance: 1
   maxneighbourdistance: 15
   neighbourrangeDistance: 1
-  apply: 1
-  checkforce: 1
+  minvelocity: 0.5
+  apply: 0
+  checkforce: 0
   drawline: 1
   neighbourdirection: {x: 0, y: 0, z: 0}
   closestneighbour: 0
+  NearNeighbour: []
   Vertex_prefab: {fileID: 1449240876399500}
 --- !u!120 &120509257089336296
 LineRenderer:
@@ -241,15 +242,3 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!135 &135748361647819894
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1449240876399500}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}

@@ -8,15 +8,16 @@ public class Graph : MonoBehaviour {
     public delegate void DepthCounter();
     public static event DepthCounter count;
 
-    public delegate void ForceVertex();
+    public delegate void ForceVertex(int depth);
     public static event ForceVertex ApplyForce;
 
     //Reddit Submission Data Structure
     public Submission submission;
     public List<GameObject> Comments;
 
-    public List<int> depth_counter;
-    public List<int> depth_counter_all;
+    public List<int> depth_counter = new List<int>();
+    public List<int> depth_counter_done = new List<int>();
+    public List<int> depth_counter_all = new List<int>();
 
     //Property
     public bool created = false;
@@ -45,11 +46,54 @@ public class Graph : MonoBehaviour {
 
     void OnEnable() {
         Vertex.SendVerticesCount += CountVertices;
+        Vertex.SendVerticesDepthCount += AddDepthCounter; 
     }
 
     void OnDisable()
     {
         Vertex.SendVerticesCount -= CountVertices;
+        Vertex.SendVerticesDepthCount -= AddDepthCounter;
+    }
+
+    public void CheckDepth(int depth) {
+        if (depth_counter_all.Count > depth && depth_counter_done.Count > depth)
+        {
+            if (depth_counter_all[depth] == depth_counter_done[depth])
+            {
+                ApplyForce(depth+1);
+            }
+
+        }
+
+    }
+
+    public void Apply(int depth) {
+        ApplyForce(depth);
+    }
+
+    public void AddDepthDone(int depth)
+    {
+        if (depth_counter_done.Count <= depth)
+        {
+            depth_counter_done.Add(0);
+        }
+        else if(depth > 0)
+        {
+            ++depth_counter_done[depth];
+        } 
+        CheckDepth(depth);
+    }
+
+    public void AddDepthCounter(int depth, int value)
+    {
+        if (depth_counter.Count <= depth)
+        {
+            depth_counter.Add(value);
+        }
+        else if (depth > 0)
+        {
+            depth_counter[depth] += value;
+        }
     }
 
     public void SetDepth() {
@@ -63,9 +107,11 @@ public class Graph : MonoBehaviour {
         {
             depth_counter_all.Add(value);
         }
-        else
+        else if(depth > 0)
         {
-            depth_counter_all[depth] += value;
+            Debug.Log("Depth: " + (depth));
+            Debug.Log("Depth Count:" + depth_counter_all.Count);
+            depth_counter_all[depth-1] += value;
         }
 
     }
@@ -80,6 +126,13 @@ public class Graph : MonoBehaviour {
         int count = 0;
 
         return count;
+    }
+
+    public void getDepthNodes() {
+        foreach (GameObject comment in Comments) {
+            comment.GetComponent<Vertex>().getVerticesDepthCount();
+
+        }
     }
 
     public void MakeParents() {
