@@ -12,24 +12,24 @@
   - [X] Create Readme
   - [X] Create Roadmap
 - [X] Create Concept
-- [ ] Model View Controller
-  - [ ] Model
-    - [ ] Load Json Data
-    - [ ] Create Data Structure for Graph
-  - [ ] View
+- [X] Model View Controller
+  - [X] Model
+    - [X] Load Json Data
+    - [X] Create Data Structure for Graph
+  - [X] View
     - [ ] Create User Interface
       - [ ] Main Menu
       - [ ] Graph Menu
       - [ ] User Interaction
     - [ ] Create Shader
-    - [ ] Create Graph Mesh
-  - [ ] Controller
-    - [ ] Create Graph
-      - [ ] Graph Structure
-      - [ ] Create Graph Mesh
-    - [ ] Change Graph Structure
-    - [ ] Create Vertex Structure
-    - [ ] Create Edge Structure
+    - [X] Create Graph Mesh
+  - [x] Controller
+    - [x] Create Graph
+      - [x] Graph Structure
+      - [x] Create Graph Mesh
+    - [x] Change Graph Structure
+    - [x] Create Vertex Structure
+    - [x] Create Edge Structure
       - [ ] Control Graph Mesh
 - [ ] Camera
   - [ ] Player Movement
