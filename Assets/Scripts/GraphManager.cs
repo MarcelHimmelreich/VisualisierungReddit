@@ -7,6 +7,7 @@ public class GraphManager : MonoBehaviour {
 
     public delegate void ForceGraph();
     public static event ForceGraph ApplyForce;
+    public static event ForceGraph ApplyForceDepth;
     public static event ForceGraph CreateParentComments;
 
     // View

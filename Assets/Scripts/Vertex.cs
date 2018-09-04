@@ -27,13 +27,23 @@ public class Vertex : MonoBehaviour {
     public GameObject Origin;
     public GameObject Parent;
     public Vector3 velocity;
-    public Vector3 velocity_neighbor;
+    public List<Vector3> velocity_neighbor;
+    public List<float> neighbourdistance;
     public float force = 1;
     public float force_neighbor = 1;
-    public float maxDistance = 5;
+    public float force_sphere = 1;
+    public float maxDistance = 10;
+    public float minDistance = 10;
     public float rangeDistance = 1;
+    public float maxneighbourdistance = 5;
+    public float neighbourrangeDistance = 1;
     public bool apply = true;
     public bool checkforce = true;
+    public bool drawline = true;
+
+    public Vector3 neighbourdirection;
+    public int closestneighbour = 0;
+    public List<GameObject> NearNeighbour;
 
     public GameObject Vertex_prefab;
 
@@ -49,12 +59,26 @@ public class Vertex : MonoBehaviour {
         if (apply)
         {
             CalculateVelocity();
+
+
             //CalculateNeighborVelocity();
-            if (checkforce) {
+            if (checkforce)
+            {
                 ApplyForce();
-                //ApplyForceNeighbour();
+            }
+            if (CheckNeighbourDistance() && !checkforce)
+            {
+                ApplyForceNeighbour();
 
             }
+
+            if (CheckParentDistance()) {
+                ApplySphereForce();
+            }
+
+        }
+        if (drawline) {
+            SetLine();
 
         }
 
@@ -65,12 +89,65 @@ public class Vertex : MonoBehaviour {
     {
         Graph.count += sendVerticesCount;
         GraphManager.CreateParentComments += GetParentComments;
+        ShaderManager.SendMaterial += SetMaterial;
     }
 
     void OnDisable()
     {
         Graph.count -= sendVerticesCount;
         GraphManager.CreateParentComments -= GetParentComments;
+        ShaderManager.SendMaterial -= SetMaterial;
+    }
+
+    void OnTriggerEnter(Collider collider) {
+        NearNeighbour.Add(collider.gameObject);
+
+    }
+
+    void OnTriggerExit(Collider collider) {
+        NearNeighbour.Remove(collider.gameObject);
+
+
+    }
+
+    public void SetLine(){
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.SetPosition(0,transform.position);
+        lineRenderer.SetPosition(1,Parent.transform.position);
+    }
+
+    public void SetColliderRadius(float radius) {
+        GetComponent<SphereCollider>().radius = radius;
+
+    }
+    public void SetMaxDistance(float distance) {
+        if (distance == 0) {
+
+            maxDistance = ParentComments.Count/3;
+        }
+        else
+        {
+            maxDistance = distance;
+        }
+
+    }
+
+    public bool CheckNeighbourDistance(){
+        float distance = Vector3.Distance(NearNeighbour[closestneighbour].transform.position, transform.position);
+        if (distance < (minDistance - rangeDistance))
+        {
+            return true;
+        }
+
+        return false ;
+    }
+
+    public bool CheckParentDistance() {
+        if (Vector3.Distance(Parent.transform.position, transform.position) < Vector3.Distance(Origin.transform.position, Parent.transform.position)) {
+            return true;
+        }
+        return false;
+
     }
 
     public void CalculateVelocity() {
@@ -91,7 +168,7 @@ public class Vertex : MonoBehaviour {
     }
 
     public void CalculateNeighborVelocity() {
-        Vector3 n_velocity = new Vector3();
+        List<Vector3> n_velocity = new List<Vector3>();
         if (depth == 1)
         {
             foreach (GameObject transform_neighbor in Parent.GetComponent<Graph>().Comments)
@@ -100,7 +177,7 @@ public class Vertex : MonoBehaviour {
                 {
                     Vector3 direction = transform_neighbor.transform.position + transform.position;
                     Debug.Log("Direction: " + direction);
-                    n_velocity += direction;
+                    n_velocity.Add(direction);
                     Debug.Log("Add Neighbour direction Graph");
                 }
                 
@@ -115,23 +192,85 @@ public class Vertex : MonoBehaviour {
                 {
                     Vector3 direction = transform_neighbor.transform.position + transform.position;
                     Debug.Log("Direction: " + direction);
-                    n_velocity += direction;
+                    n_velocity.Add(direction);
                     Debug.Log("Add Neighbour direction");
                 }
             }
         }
-        velocity_neighbor = n_velocity.normalized;
 
     }
 
 
 
     public void ApplyForce() {
-        rigidbody.AddForce(velocity * force, ForceMode.Force);
+        rigidbody.AddRelativeForce(velocity * force, ForceMode.Force);
     }
 
+    public void ApplySphereForce() {
+        rigidbody.AddForce(Origin.transform.position + Parent.transform.position * force_sphere, ForceMode.Force);
+    }
+
+    //Apply Force from Every Neighbour
     public void ApplyForceNeighbour() {
-        rigidbody.AddForce(velocity_neighbor * force_neighbor, ForceMode.Force);
+        if (ParentComments.Count > 0) {
+            neighbourdistance = GetClosestNeighbour();
+            if (neighbourdistance.Count > 0)
+            {
+                float maxdistance = 0;
+                closestneighbour = 0;
+                for (int i = 0; i < neighbourdistance.Count; ++i)
+                {
+                    if (maxdistance < neighbourdistance[i]) {
+                        maxdistance = neighbourdistance[i];
+                    }
+                    if (neighbourdistance[i] < neighbourdistance[closestneighbour] && neighbourdistance[i] > 0)
+                    {
+                        closestneighbour = i;
+                    }
+                }
+                //for (int i = 0; i < ParentComments.Count; ++i)
+                //{
+                    float forcedrop;
+                    //Check if Last Element is 0
+                    if (maxdistance > 0)
+                    {
+                        forcedrop = neighbourdistance[closestneighbour] / maxdistance;
+                    }
+                    else
+                    {
+                        forcedrop = 1;
+                    }
+
+                    Vector3 direction = (ParentComments[closestneighbour].transform.position - transform.position).normalized;
+                    Debug.Log(direction);
+                    if (!float.IsNaN(direction.x) && !float.IsNaN(direction.y) && !float.IsNaN(direction.z))
+                    {
+                        neighbourdirection = direction;
+                        rigidbody.AddForce(-direction * force_neighbor , ForceMode.Force);
+                    Debug.Log("Apply  Neighbour Force");
+                    }
+                //}
+            }
+
+        }
+
+        
+    }
+
+    public List<float> GetClosestNeighbour() {
+        List<float> list = new List<float>();
+        for(int i = 0;i<NearNeighbour.Count;++i){
+            if (NearNeighbour[i].GetComponent<Vertex>().comment.Id != comment.Id)
+            {
+                list.Add(Vector3.Distance(NearNeighbour[i].transform.position, transform.position));
+            }
+            else
+            {
+                list.Add(-1);
+            }
+            
+        }
+        return list;
     }
 
     public void sendVerticesCount() {
@@ -146,6 +285,7 @@ public class Vertex : MonoBehaviour {
         }
 
     }
+
 
     //rekursiv function
     public int getVerticesCount(int value = 0) {
@@ -170,6 +310,7 @@ public class Vertex : MonoBehaviour {
             foreach (Comment new_comment in comment.Comments.CommentArray)
             {
                 GameObject new_comment_object = Instantiate(Vertex_prefab) as GameObject;
+                new_comment_object.GetComponent<Rigidbody>().velocity = Random.onUnitSphere * maxDistance;
                 comments.Add(new_comment_object);
                 new_comment_object.GetComponent<Vertex>().comment = new_comment;
                 new_comment_object.GetComponent<Vertex>().Origin = origin;
@@ -218,8 +359,29 @@ public class Vertex : MonoBehaviour {
 
     }
 
+    public void SetLineColour(string author, Color startcolor,  Color endcolor)
+    {
+        if (author == comment.Author)
+        {
+            GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
+        }
+    }
 
+    public void SetLineWidth(string author, float startwidth, float endwidth)
+    {
+        if (author == comment.Author)
+        {
+            GetComponent<LineRenderer>().SetWidth(startwidth, endwidth);
+        }
+    }
 
+    public void SetMaterial(string author, Material material)
+    {
+        if (author == comment.Author)
+        {
+            GetComponent<LineRenderer>().material = material;
+        }
+    }
 
     public void Move(Vector3 position) {
     }

@@ -22,6 +22,7 @@ public class Graph : MonoBehaviour {
     public bool created = false;
     public bool castGraph = false;
     public GameObject Vertex_prefab;
+    public float maxDistance = 50;
     public int depth = 0;
 
 
@@ -92,6 +93,7 @@ public class Graph : MonoBehaviour {
         foreach (Comment comment in submission.Comments) {
             Debug.Log("comment: " + comment);
             GameObject new_comment = Instantiate(Vertex_prefab) as GameObject;
+            new_comment.GetComponent<Rigidbody>().velocity = Random.onUnitSphere * maxDistance;
             Comments.Add(new_comment);
             new_comment.GetComponent<Vertex>().comment = comment;
             new_comment.GetComponent<Vertex>().Parent = this.gameObject;
