@@ -9,6 +9,9 @@ public class Vertex : MonoBehaviour {
     public static event vertexsender SendVerticesCount;
     public static event vertexsender SendVerticesDepthCount;
 
+    public delegate void vertexdepthsender(int depth);
+    public static event vertexdepthsender SendDepth;
+
     //Reddit Comment Data Structure
     public Comment comment;
     public List<GameObject> Comments;
@@ -28,6 +31,7 @@ public class Vertex : MonoBehaviour {
     public GameObject Origin;
     public GameObject Parent;
     public Vector3 velocity;
+    public float velocity_magnitude;
     public List<Vector3> velocity_neighbor;
     public List<float> neighbourdistance;
     public float force = 1;
@@ -39,15 +43,27 @@ public class Vertex : MonoBehaviour {
     public float maxneighbourdistance = 5;
     public float neighbourrangeDistance = 1;
     public float minvelocity = 0.1f;
-    public bool apply = true;
+
+    public float parentdistance = 0;
+
+    public bool applyphysics = true;
+    public bool applyforce = false;
+    public bool applyforceneighbour = false;
+    public bool applyforceorigin = true;
+
     public bool checkforce = true;
     public bool drawline = true;
 
     public Vector3 neighbourdirection;
     public int closestneighbour = 0;
+    public float closestneighbourdistance = 0;
     public List<GameObject> NearNeighbour;
 
     public GameObject Vertex_prefab;
+
+    public int counter = 0;
+
+    public bool marked = false;
 
     // Use this for initialization
     void Start() {
@@ -57,28 +73,31 @@ public class Vertex : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-        if (apply)
+    void FixedUpdate() {
+        velocity_magnitude = rigidbody.velocity.magnitude;
+        if (applyphysics)
         {
-            CalculateVelocity();
-
-
-            //CalculateNeighborVelocity();
-            if (checkforce)
+            CheckVelocity();
+            CheckParentDistance();
+            CheckNeighbourDistance();
+            if (applyforce)
             {
                 ApplyForce();
             }
-            if (CheckNeighbourDistance() && !checkforce)
+            if (applyforceneighbour)
             {
                 ApplyForceNeighbour();
-                CheckVelocity();
             }
-
-            if (CheckParentDistance()) {
+            if (applyforceorigin)
+            {
                 ApplySphereForce();
+                
             }
-
+            CheckVelocityDirection();
         }
+
+
+
         if (drawline) {
             SetLine();
 
@@ -93,6 +112,7 @@ public class Vertex : MonoBehaviour {
         Graph.ApplyForce += SetApplyByDepth;
         GraphManager.CreateParentComments += GetParentComments;
         ShaderManager.SendMaterial += SetMaterial;
+
     }
 
     void OnDisable()
@@ -107,7 +127,15 @@ public class Vertex : MonoBehaviour {
     {
         if (depth == _depth)
         {
-            apply = true;
+            if (applyphysics)
+            {
+                applyphysics = false;
+            }
+            else
+            {
+                applyphysics = true;
+            }
+            ApplyForce(10);
         }
     }
 
@@ -134,47 +162,75 @@ public class Vertex : MonoBehaviour {
 
     }
 
+    public void CheckVelocityDirection()
+    {
+        if (velocity == new Vector3(0, 0, 0))
+        {
+            velocity_magnitude = 0;
+        }
+    }
 
     public void CheckVelocity() {
-        if (rigidbody.velocity.magnitude < minvelocity)
+        float distance = Vector3.Distance(Parent.transform.position, transform.position);
+        if (velocity_magnitude < minvelocity &&  distance < maxDistance - rangeDistance || velocity_magnitude < minvelocity && distance > maxDistance + rangeDistance)
         {
-            apply = false;
+            applyforce = false;
+            applyforceneighbour = true;
+            velocity = new Vector3(0, 0, 0);
             Origin.GetComponent<Graph>().AddDepthDone(depth);
         }
     }
 
-    public bool CheckNeighbourDistance(){
+    public void CheckNeighbourDistance(){
         float distance = Vector3.Distance(ParentComments[closestneighbour].transform.position, transform.position);
-        if (distance < (minDistance - rangeDistance))
+
+        if (distance > minDistance && velocity.magnitude < minvelocity)
         {
-            return true;
+            applyforceneighbour = true;
+        }
+        else
+        {
+            applyforceneighbour = false;
         }
 
-        return false ;
     }
 
-    public bool CheckParentDistance() {
-        if (Vector3.Distance(Parent.transform.position, transform.position) < Vector3.Distance(Origin.transform.position, Parent.transform.position)) {
-            return true;
+    public void CheckParentDistance() {
+        float distanceparent = Vector3.Distance(Parent.transform.position, transform.position);
+        float distanceorigin = Vector3.Distance(Origin.transform.position, Parent.transform.position);
+
+        if (distanceparent > distanceorigin && distanceparent < maxDistance*2)
+        {
+            applyforceorigin = true;
         }
-        return false;
+        else
+        {
+            ApplySphereForce(true);
+            applyforceorigin = false;
+        }
 
     }
 
     public void CalculateVelocity() {
-        float distance = Vector3.Distance(Parent.transform.position, transform.position);
-        if (distance < maxDistance - rangeDistance)
-        {
-            velocity = Parent.transform.position + transform.position;
-            checkforce = true;
-        }
-        else if(distance > maxDistance + rangeDistance)
+        parentdistance = Vector3.Distance(Parent.transform.position, transform.position);
+        
+        if (parentdistance < maxDistance - rangeDistance)
         {
             velocity = Parent.transform.position - transform.position;
+            velocity = -velocity;
+            checkforce = true;
+        }
+        else if(parentdistance > maxDistance + rangeDistance)
+        {
+            velocity = Parent.transform.position - transform.position;
+            
             checkforce = true;
         }
         //Is in range
-        else { checkforce = false; }
+        else {
+            //velocity = new Vector3(0,0,0);
+            rigidbody.AddForce(-velocity * force, ForceMode.Force);
+            checkforce = false; }
         velocity = velocity.normalized;
     }
 
@@ -209,20 +265,33 @@ public class Vertex : MonoBehaviour {
 
 
 
-    public void ApplyForce() {
-        rigidbody.AddRelativeForce(velocity * force, ForceMode.Force);
+    public void ApplyForce(float power = 1) {
+        if (rigidbody == null)
+        {
+            rigidbody = GetComponent<Rigidbody>();
+        }
+        rigidbody.AddRelativeForce(velocity * force *  power, ForceMode.Force);
     }
 
-    public void ApplySphereForce() {
-        rigidbody.AddForce(Origin.transform.position + Parent.transform.position * force_sphere, ForceMode.Force);
+    public void ApplySphereForce(bool inverse = false) {
+        if (!inverse)
+        {
+            rigidbody.AddForce((Origin.transform.position - Parent.transform.position).normalized * force_sphere, ForceMode.Force);
+        }
+        else
+        {
+            rigidbody.AddForce(-(Origin.transform.position - Parent.transform.position).normalized * force_sphere, ForceMode.Force);
+        }
+        
     }
 
     //Apply Force from Every Neighbour
     public void ApplyForceNeighbour() {
         if (ParentComments.Count > 0) {
-            neighbourdistance = GetClosestNeighbour();
-            if (neighbourdistance.Count > 0)
+            GetClosestNeighbour();
+            if (closestneighbourdistance > 0)
             {
+                /*
                 float maxdistance = 0;
                 closestneighbour = 0;
                 for (int i = 0; i < neighbourdistance.Count; ++i)
@@ -234,29 +303,15 @@ public class Vertex : MonoBehaviour {
                     {
                         closestneighbour = i;
                     }
-                }
-                //for (int i = 0; i < ParentComments.Count; ++i)
-                //{
-                    float forcedrop;
-                    //Check if Last Element is 0
-                    if (maxdistance > 0)
-                    {
-                        forcedrop = neighbourdistance[closestneighbour] / maxdistance;
-                    }
-                    else
-                    {
-                        forcedrop = 1;
-                    }
-
-                    Vector3 direction = (ParentComments[closestneighbour].transform.position - transform.position).normalized;
+                }*/
+                Vector3 direction = (ParentComments[closestneighbour].transform.position - transform.position).normalized;
                     
-                    if (!float.IsNaN(direction.x) && !float.IsNaN(direction.y) && !float.IsNaN(direction.z))
-                    {
-                        neighbourdirection = direction;
-                        rigidbody.AddForce(-direction * force_neighbor , ForceMode.Force);
-                    Debug.Log("Apply  Neighbour Force");
-                    }
-                //}
+                if (!float.IsNaN(direction.x) && !float.IsNaN(direction.y) && !float.IsNaN(direction.z))
+                {
+                    neighbourdirection = direction;
+                    rigidbody.AddForce(-direction * force_neighbor , ForceMode.Force);
+                Debug.Log("Apply  Neighbour Force");
+                }
             }
 
         }
@@ -264,20 +319,24 @@ public class Vertex : MonoBehaviour {
         
     }
 
-    public List<float> GetClosestNeighbour() {
-        List<float> list = new List<float>();
+    public void GetClosestNeighbour() {
         for(int i = 0;i<ParentComments.Count;++i){
             if (ParentComments[i].GetComponent<Vertex>().comment.Id != comment.Id)
             {
-                list.Add(Vector3.Distance(ParentComments[i].transform.position, transform.position));
+                float distance = Vector3.Distance(ParentComments[i].transform.position, transform.position);
+                if (distance < closestneighbourdistance && distance > 0)
+                {
+                    closestneighbourdistance = distance;
+                    closestneighbour = i;
+                }
+                
             }
             else
             {
-                list.Add(-1);
+                
             }
             
         }
-        return list;
     }
 
     public void sendVerticesCount() {
@@ -286,7 +345,8 @@ public class Vertex : MonoBehaviour {
     }
 
     public void sendVerticesDepthCount() {
-        SendVerticesDepthCount(depth, Comments.Count);
+        Debug.Log("Send Depth" + depth);
+        SendDepth(depth);
     }
 
     public void SetDepth(int new_depth) {
@@ -315,14 +375,11 @@ public class Vertex : MonoBehaviour {
 
     public void getVerticesDepthCount()
     {
-        if (Comments.Count > 0)
-        {
             sendVerticesDepthCount();
             foreach (GameObject vertex in Comments)
             {
                 vertex.GetComponent<Vertex>().getVerticesDepthCount();
             }
-        }
     }
 
     public List<GameObject> CreateComment(Comment comment, GameObject parent, GameObject origin)

@@ -7,6 +7,7 @@ public class Graph : MonoBehaviour {
 
     public delegate void DepthCounter();
     public static event DepthCounter count;
+    public static event DepthCounter CheckVelocity;
 
     public delegate void ForceVertex(int depth);
     public static event ForceVertex ApplyForce;
@@ -33,6 +34,7 @@ public class Graph : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        depth_counter_done.Add(0);
 
     }
 
@@ -46,20 +48,22 @@ public class Graph : MonoBehaviour {
 
     void OnEnable() {
         Vertex.SendVerticesCount += CountVertices;
-        Vertex.SendVerticesDepthCount += AddDepthCounter; 
+        Vertex.SendDepth += AddDepthCounter; 
     }
 
     void OnDisable()
     {
         Vertex.SendVerticesCount -= CountVertices;
-        Vertex.SendVerticesDepthCount -= AddDepthCounter;
+        Vertex.SendDepth -= AddDepthCounter;
     }
 
     public void CheckDepth(int depth) {
-        if (depth_counter_all.Count > depth && depth_counter_done.Count > depth)
+        Debug.Log("Send Depth Check:" + depth);
+        if (depth_counter.Count > depth && depth_counter_done.Count > depth && depth > 0)
         {
-            if (depth_counter_all[depth] == depth_counter_done[depth])
+            if (depth_counter[depth] == depth_counter_done[depth])
             {
+                Debug.Log("Calculate next Layer");
                 ApplyForce(depth+1);
             }
 
@@ -75,24 +79,24 @@ public class Graph : MonoBehaviour {
     {
         if (depth_counter_done.Count <= depth)
         {
-            depth_counter_done.Add(0);
+            depth_counter_done.Add(1);
         }
         else if(depth > 0)
         {
             ++depth_counter_done[depth];
-        } 
+        }
         CheckDepth(depth);
     }
 
-    public void AddDepthCounter(int depth, int value)
+    public void AddDepthCounter(int depth)
     {
         if (depth_counter.Count <= depth)
         {
-            depth_counter.Add(value);
+            depth_counter.Add(1);
         }
         else if (depth > 0)
         {
-            depth_counter[depth] += value;
+            ++depth_counter[depth];
         }
     }
 

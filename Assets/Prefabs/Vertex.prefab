@@ -93,9 +93,9 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1449240876399500}
   serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 5
-  m_AngularDrag: 5
+  m_Mass: 5
+  m_Drag: 1
+  m_AngularDrag: 1
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -123,24 +123,32 @@ MonoBehaviour:
   Origin: {fileID: 0}
   Parent: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
+  velocity_magnitude: 0
   velocity_neighbor: []
   neighbourdistance: []
-  force: 250
-  force_neighbor: 250
-  force_sphere: 100
-  maxDistance: 50
-  minDistance: 30
+  force: 50
+  force_neighbor: 50
+  force_sphere: 50
+  maxDistance: 10
+  minDistance: 10
   rangeDistance: 1
-  maxneighbourdistance: 15
+  maxneighbourdistance: 5
   neighbourrangeDistance: 1
   minvelocity: 0.5
-  apply: 0
+  parentdistance: 0
+  applyphysics: 1
+  applyforce: 0
+  applyforceneighbour: 0
+  applyforceorigin: 0
   checkforce: 0
   drawline: 1
   neighbourdirection: {x: 0, y: 0, z: 0}
   closestneighbour: 0
+  closestneighbourdistance: 0
   NearNeighbour: []
   Vertex_prefab: {fileID: 1449240876399500}
+  counter: 0
+  marked: 0
 --- !u!120 &120509257089336296
 LineRenderer:
   m_ObjectHideFlags: 1
