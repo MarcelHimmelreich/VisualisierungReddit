@@ -1,4 +1,4 @@
-# Visualisierung von Reddit Daten mit Unity
+# Visualisierung von Kommunikationsstrukturen von Reddit Daten durch einen kräftegerichteten 3D Graphen mit Unity
 
 
 
