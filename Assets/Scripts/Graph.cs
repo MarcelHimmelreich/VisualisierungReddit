@@ -64,7 +64,7 @@ public class Graph : MonoBehaviour {
             if (depth_counter[depth] == depth_counter_done[depth])
             {
                 Debug.Log("Calculate next Layer");
-                ApplyForce(depth+1);
+                //ApplyForce(depth+1);
             }
 
         }

@@ -41,6 +41,7 @@ public class Vertex : MonoBehaviour {
     public float minDistance = 10;
     public float rangeDistance = 1;
     public float maxneighbourdistance = 5;
+    public float minneighbourdistance = 5;
     public float neighbourrangeDistance = 1;
     public float minvelocity = 0.1f;
 
@@ -77,22 +78,45 @@ public class Vertex : MonoBehaviour {
         velocity_magnitude = rigidbody.velocity.magnitude;
         if (applyphysics)
         {
+
+
+            CalculateVelocity();
+            ApplyForce();
             CheckVelocity();
+
+            CalculateNeighborVelocity();
+            ApplyForceNeighbour();
             CheckParentDistance();
+
+            ApplySphereForce();
             CheckNeighbourDistance();
-            if (applyforce)
+            /*if (applyforce)
             {
                 ApplyForce();
+                CheckVelocity();
+                //Debug.Log("Apply Force");
             }
             if (applyforceneighbour)
             {
                 ApplyForceNeighbour();
+                CheckParentDistance();
+                //Debug.Log("Apply Neighbour Force");
             }
             if (applyforceorigin)
             {
                 ApplySphereForce();
-                
-            }
+                CheckNeighbourDistance();
+                //Debug.Log("Apply Sphere Force");
+
+            }*/
+
+            
+            
+
+            
+
+            
+
             CheckVelocityDirection();
         }
 
@@ -170,21 +194,32 @@ public class Vertex : MonoBehaviour {
         }
     }
 
+    public void CheckPositionComplete()
+    {
+        if (!applyforce && !applyforceneighbour && !applyforceorigin)
+        {
+            //Origin.GetComponent<Graph>().AddDepthDone(depth);
+            applyphysics = false;
+        }
+    }
+
     public void CheckVelocity() {
         float distance = Vector3.Distance(Parent.transform.position, transform.position);
+
+        //Check if Distance is in MaxDistance or velocity is decreasing
         if (velocity_magnitude < minvelocity &&  distance < maxDistance - rangeDistance || velocity_magnitude < minvelocity && distance > maxDistance + rangeDistance)
         {
             applyforce = false;
-            applyforceneighbour = true;
+            //applyforceneighbour = true;
             velocity = new Vector3(0, 0, 0);
-            Origin.GetComponent<Graph>().AddDepthDone(depth);
+            
         }
     }
 
     public void CheckNeighbourDistance(){
         float distance = Vector3.Distance(ParentComments[closestneighbour].transform.position, transform.position);
 
-        if (distance > minDistance && velocity.magnitude < minvelocity)
+        if (distance > minneighbourdistance && velocity.magnitude < minvelocity)
         {
             applyforceneighbour = true;
         }
@@ -201,7 +236,7 @@ public class Vertex : MonoBehaviour {
 
         if (distanceparent > distanceorigin && distanceparent < maxDistance*2)
         {
-            applyforceorigin = true;
+            //applyforceorigin = true;
         }
         else
         {
@@ -270,17 +305,17 @@ public class Vertex : MonoBehaviour {
         {
             rigidbody = GetComponent<Rigidbody>();
         }
-        rigidbody.AddRelativeForce(velocity * force *  power, ForceMode.Force);
+        rigidbody.AddRelativeForce(velocity * force, ForceMode.Force);
     }
 
     public void ApplySphereForce(bool inverse = false) {
         if (!inverse)
         {
-            rigidbody.AddForce((Origin.transform.position - Parent.transform.position).normalized * force_sphere, ForceMode.Force);
+            rigidbody.AddRelativeForce((Origin.transform.position - Parent.transform.position) * force_sphere*2, ForceMode.Force);
         }
         else
         {
-            rigidbody.AddForce(-(Origin.transform.position - Parent.transform.position).normalized * force_sphere, ForceMode.Force);
+            rigidbody.AddRelativeForce(-(Origin.transform.position - Parent.transform.position) * force_sphere, ForceMode.Force);
         }
         
     }
@@ -309,7 +344,7 @@ public class Vertex : MonoBehaviour {
                 if (!float.IsNaN(direction.x) && !float.IsNaN(direction.y) && !float.IsNaN(direction.z))
                 {
                     neighbourdirection = direction;
-                    rigidbody.AddForce(-direction * force_neighbor , ForceMode.Force);
+                    rigidbody.AddRelativeForce(-neighbourdirection * force_neighbor , ForceMode.Force);
                 Debug.Log("Apply  Neighbour Force");
                 }
             }
@@ -346,7 +381,7 @@ public class Vertex : MonoBehaviour {
 
     public void sendVerticesDepthCount() {
         Debug.Log("Send Depth" + depth);
-        SendDepth(depth);
+        //SendDepth(depth);
     }
 
     public void SetDepth(int new_depth) {
