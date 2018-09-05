@@ -88,7 +88,7 @@ public class GraphManager : MonoBehaviour {
             
             submission.GetComponent<Graph>().getDepthNodes();
             //submission.GetComponent<Graph>().CountAllVerticesDepth();
-            submission.GetComponent<Graph>().Apply(1);
+            //submission.GetComponent<Graph>().Apply(1);
         }
         Debug.Log("Force Graph Configuration complete!");
 

@@ -128,7 +128,7 @@ MonoBehaviour:
   neighbourdistance: []
   force: 50
   force_neighbor: 5
-  force_sphere: 0
+  force_sphere: 5
   maxDistance: 10
   minDistance: 10
   rangeDistance: 1
