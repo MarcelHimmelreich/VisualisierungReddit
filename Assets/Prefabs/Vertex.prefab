@@ -123,24 +123,26 @@ MonoBehaviour:
   Origin: {fileID: 0}
   Parent: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
+  velocity_origin: {x: 0, y: 0, z: 0}
   velocity_magnitude: 0
   velocity_neighbor: []
   neighbourdistance: []
-  force: 50
+  force: 25
   force_neighbor: 5
-  force_sphere: 5
-  maxDistance: 10
-  minDistance: 10
+  force_sphere: 25
+  maxDistance: 20
+  minDistance: 20
   rangeDistance: 1
   maxneighbourdistance: 5
-  minneighbourdistance: 5
+  minneighbourdistance: 2
   neighbourrangeDistance: 1
   minvelocity: 0.5
   parentdistance: 0
+  origindistance: 0
   applyphysics: 1
   applyforce: 0
   applyforceneighbour: 0
-  applyforceorigin: 1
+  applyforceorigin: 0
   checkforce: 0
   drawline: 1
   neighbourdirection: {x: 0, y: 0, z: 0}

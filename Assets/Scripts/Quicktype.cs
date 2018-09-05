@@ -33,9 +33,6 @@ namespace QuickType
         [JsonProperty("url")]
         public string Url { get; set; }
 
-        [JsonProperty("viewcount")]
-        public object Viewcount { get; set; }
-
         [JsonProperty("content")]
         public string Content { get; set; }
 
@@ -49,7 +46,7 @@ namespace QuickType
         public double Upratio { get; set; }
 
         [JsonProperty("subreddit")]
-        public SubredditEnum Subreddit { get; set; }
+        public string Subreddit { get; set; }
 
         [JsonProperty("comments")]
         public Comment[] Comments { get; set; }
@@ -85,8 +82,6 @@ namespace QuickType
         public Comments Comments { get; set; }
     }
 
-    public enum SubredditEnum { RGaming };
-
     public partial struct Comments
     {
         public Comment[] CommentArray;
@@ -114,12 +109,11 @@ namespace QuickType
             DateParseHandling = DateParseHandling.None,
             Converters = {
                 CommentsConverter.Singleton,
-                SubredditEnumConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
     }
-   
+
     internal class CommentsConverter : JsonConverter
     {
         public override bool CanConvert(Type t) => t == typeof(Comments) || t == typeof(Comments?);
@@ -155,39 +149,5 @@ namespace QuickType
         }
 
         public static readonly CommentsConverter Singleton = new CommentsConverter();
-    }
-
-    internal class SubredditEnumConverter : JsonConverter
-    {
-       public override bool CanConvert(Type t) => t == typeof(SubredditEnum) || t == typeof(SubredditEnum?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null) return null;
-            var value = serializer.Deserialize<string>(reader);
-            if (value == "r/gaming")
-            {
-                return SubredditEnum.RGaming;
-            }
-            throw new Exception("Cannot unmarshal type SubredditEnum");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (SubredditEnum)untypedValue;
-            if (value == SubredditEnum.RGaming)
-            {
-                serializer.Serialize(writer, "r/gaming");
-                return;
-            }
-            throw new Exception("Cannot marshal type SubredditEnum");
-        }
-
-        public static readonly SubredditEnumConverter Singleton = new SubredditEnumConverter();
     }
 }

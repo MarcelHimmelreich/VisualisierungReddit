@@ -38,6 +38,7 @@ public class Vertex : MonoBehaviour {
     public float force = 1;
     public float force_neighbor = 1;
     public float force_sphere = 1;
+    public float maxvelocity = 5;
     public float maxDistance = 10;
     public float minDistance = 10;
     public float rangeDistance = 1;
@@ -113,24 +114,13 @@ public class Vertex : MonoBehaviour {
 
             }*/
 
-            
-            
-
-            
-
-            
-
             CheckVelocityDirection();
         }
-
-
 
         if (drawline) {
             SetLine();
 
         }
-
-
     }
 
     void OnEnable()
