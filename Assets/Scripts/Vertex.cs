@@ -76,7 +76,7 @@ public class Vertex : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void FixedUpdate() {
+    void Update() {
         velocity_magnitude = rigidbody.velocity.magnitude;
         if (applyphysics)
         {
@@ -191,9 +191,10 @@ public class Vertex : MonoBehaviour {
 
     public void CheckVelocityDirection()
     {
-        if (velocity == new Vector3(0, 0, 0))
+        if (velocity == new Vector3(-1, -1, -1))
         {
             velocity_magnitude = 0;
+            applyphysics = false;
         }
     }
 
@@ -214,7 +215,7 @@ public class Vertex : MonoBehaviour {
         {
             applyforce = false;
             //applyforceneighbour = true;
-            velocity = new Vector3(0, 0, 0);
+            velocity = new Vector3(-1, -1, -1);
             
         }
     }
@@ -267,7 +268,7 @@ public class Vertex : MonoBehaviour {
         //Is in range
         else {
             //velocity = new Vector3(0,0,0);
-            rigidbody.AddForce(-velocity * force, ForceMode.Force);
+            rigidbody.AddRelativeForce(-velocity * force, ForceMode.Force);
             checkforce = false; }
         velocity = velocity.normalized;
     }
