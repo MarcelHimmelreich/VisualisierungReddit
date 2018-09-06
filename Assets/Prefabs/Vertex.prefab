@@ -19,8 +19,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4364828863162532}
-  - component: {fileID: 33672304369299066}
-  - component: {fileID: 23286528947127826}
   - component: {fileID: 114924350647140430}
   - component: {fileID: 54094890495327332}
   - component: {fileID: 120509257089336296}
@@ -44,48 +42,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23286528947127826
-MeshRenderer:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1449240876399500}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
-  m_RenderingLayerMask: 4294967295
-  m_Materials:
-  - {fileID: 2100000, guid: efec3379b304d7c4a85fc0157a1c502d, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
---- !u!33 &33672304369299066
-MeshFilter:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1449240876399500}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!54 &54094890495327332
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -99,7 +55,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &114924350647140430
 MonoBehaviour:
@@ -129,20 +85,21 @@ MonoBehaviour:
   neighbourdistance: []
   force: 25
   force_neighbor: 5
-  force_sphere: 25
+  force_sphere: 15
+  maxvelocity: 5
   maxDistance: 20
   minDistance: 20
   rangeDistance: 1
   maxneighbourdistance: 5
-  minneighbourdistance: 2
+  minneighbourdistance: 5
   neighbourrangeDistance: 1
   minvelocity: 0.5
   parentdistance: 0
   origindistance: 0
   applyphysics: 1
-  applyforce: 0
-  applyforceneighbour: 0
-  applyforceorigin: 0
+  applyforce: 1
+  applyforceneighbour: 1
+  applyforceorigin: 1
   checkforce: 0
   drawline: 1
   neighbourdirection: {x: 0, y: 0, z: 0}
@@ -151,7 +108,9 @@ MonoBehaviour:
   NearNeighbour: []
   Vertex_prefab: {fileID: 1449240876399500}
   counter: 0
+  VertexMesh: {fileID: 0}
   marked: 0
+  maxscale: 2
 --- !u!120 &120509257089336296
 LineRenderer:
   m_ObjectHideFlags: 1

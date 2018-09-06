@@ -67,16 +67,16 @@ namespace QuickType
         public string Content { get; set; }
 
         [JsonProperty("score")]
-        public long Score { get; set; }
+        public float Score { get; set; }
 
         [JsonProperty("likes")]
-        public long Likes { get; set; }
+        public float Likes { get; set; }
 
         [JsonProperty("upvote")]
-        public long Upvote { get; set; }
+        public float Upvote { get; set; }
 
         [JsonProperty("downvote")]
-        public long Downvote { get; set; }
+        public float Downvote { get; set; }
 
         [JsonProperty("comments")]
         public Comments Comments { get; set; }

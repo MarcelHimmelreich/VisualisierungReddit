@@ -67,7 +67,12 @@ public class Vertex : MonoBehaviour {
 
     public int counter = 0;
 
+    //Vertex Mesh
+    public GameObject VertexMesh;
+
+    //Dimension Change
     public bool marked = false;
+    public float maxscale = 3;
 
     // Use this for initialization
     void Start() {
@@ -115,6 +120,7 @@ public class Vertex : MonoBehaviour {
             }*/
 
             CheckVelocityDirection();
+            //CheckPositionComplete();
         }
 
         if (drawline) {
@@ -128,6 +134,10 @@ public class Vertex : MonoBehaviour {
         Graph.count += sendVerticesCount;
         Graph.ApplyForce += SetApplyByDepth;
         GraphManager.CreateParentComments += GetParentComments;
+        GraphManager.PrintData += Print;
+        GraphManager.SendTransform += SetTransformScale;
+        GraphManager.Spawn += CreateMesh;
+        GraphManager.Destroy += DestroyMesh;
         ShaderManager.SendMaterial += SetMaterial;
 
     }
@@ -137,6 +147,10 @@ public class Vertex : MonoBehaviour {
         Graph.count -= sendVerticesCount;
         Graph.ApplyForce -= SetApplyByDepth;
         GraphManager.CreateParentComments -= GetParentComments;
+        GraphManager.PrintData -= Print;
+        GraphManager.SendTransform -= SetTransformScale;
+        GraphManager.Spawn -= CreateMesh;
+        GraphManager.Destroy -= DestroyMesh;
         ShaderManager.SendMaterial -= SetMaterial;
     }
 
@@ -201,12 +215,16 @@ public class Vertex : MonoBehaviour {
         float distance = Vector3.Distance(Parent.transform.position, transform.position);
 
         //Check if Distance is in MaxDistance or velocity is decreasing
-        if (velocity_magnitude < minvelocity &&  distance < maxDistance - rangeDistance || velocity_magnitude < minvelocity && distance > maxDistance + rangeDistance)
+        if (velocity_magnitude < minvelocity && distance < maxDistance - rangeDistance || velocity_magnitude < minvelocity && distance > maxDistance + rangeDistance)
         {
             applyforce = false;
             //applyforceneighbour = true;
             velocity = new Vector3(-1, -1, -1);
-            
+
+        }
+        else
+        {
+            applyforce = true;
         }
     }
 
@@ -220,6 +238,7 @@ public class Vertex : MonoBehaviour {
         else
         {
             applyforceneighbour = false;
+            
         }
 
     }
@@ -228,14 +247,14 @@ public class Vertex : MonoBehaviour {
         float distanceparent = Vector3.Distance(Parent.transform.position, transform.position);
         float distanceorigin = Vector3.Distance(Origin.transform.position, Parent.transform.position);
 
-        if (distanceparent > distanceorigin && distanceparent < maxDistance*2)
+        if (distanceparent > distanceorigin)
         {
             //applyforceorigin = true;
         }
         else
         {
             //ApplySphereForce(true);
-            applyforceorigin = false;
+            //applyforceorigin = false;
         }
 
     }
@@ -252,14 +271,15 @@ public class Vertex : MonoBehaviour {
         else if(parentdistance > maxDistance + rangeDistance)
         {
             velocity = Parent.transform.position - transform.position;
-            
+
             checkforce = true;
         }
         //Is in range
         else {
             //velocity = new Vector3(0,0,0);
-            rigidbody.AddRelativeForce(-velocity * force, ForceMode.Force);
-            checkforce = false; }
+            rigidbody.AddRelativeForce(-velocity.normalized * force, ForceMode.Force);
+            checkforce = false;
+        }
         velocity = velocity.normalized;
     }
 
@@ -276,7 +296,8 @@ public class Vertex : MonoBehaviour {
         else if (origindistance > maxDistance * depth + maxDistance)
         {
             velocity_origin = Origin.transform.position - transform.position;
-            
+            //rigidbody.AddRelativeForce(velocity_origin * force/2, ForceMode.Force);
+
 
         }
         //Is in range
@@ -461,6 +482,78 @@ public class Vertex : MonoBehaviour {
 
     }
 
+    public void SetTransformScale(int _depth, string attribute, float maxvalue)
+    {
+        float value = 1+GetAttributeValue(attribute) * maxscale / maxvalue;
+        if (!float.IsNaN(value) &&  VertexMesh != null)
+        {
+            if (depth > 0 && depth == _depth)
+            {
+                VertexMesh.transform.localScale = new Vector3(value, value, value);
+            }
+            else if(_depth == 0)
+            {
+                VertexMesh.transform.localScale = new Vector3(value, value, value);
+            }
+        }
+    }
+
+    public float GetAttributeValue(string attribute)
+    {
+        if (attribute.Equals("score"))
+        {
+            return comment.Score;          
+        }
+        else if (attribute.Equals("upvote"))
+        {
+            return comment.Upvote;
+        }
+        else if (attribute.Equals("downvote"))
+        {
+            return comment.Downvote;
+        }
+        else if (attribute.Equals("likes"))
+        {
+            return comment.Likes;
+        }
+        else
+        {
+            return comment.Upvote;
+        }
+
+    }
+
+    public void Print()
+    {
+        Debug.Log("Likes: " + comment.Likes);
+        Debug.Log("Score: " + comment.Score);
+        Debug.Log("Upvote: " + comment.Upvote);
+        Debug.Log("Downvote: " + comment.Downvote);
+    }
+
+    public float GetMaxValue(string attribute)
+    {
+        float maxvalue = GetAttributeValue(attribute);
+        if (Comments.Count == 0)
+        {
+            return maxvalue;
+        }
+        else
+        {
+            foreach (GameObject _comment in Comments)
+            {
+                float commentvalue = _comment.GetComponent<Vertex>().GetMaxValue(attribute); ;
+                if (commentvalue > maxvalue)
+                {
+                    maxvalue = commentvalue;
+                }
+                
+            }
+            return maxvalue;
+        }
+
+    }
+
     public void SetLineColour(string author, Color startcolor,  Color endcolor)
     {
         if (author == comment.Author)
@@ -485,9 +578,35 @@ public class Vertex : MonoBehaviour {
         }
     }
 
-    public void Move(Vector3 position) {
+    public void CreateMesh(int _depth, GameObject sphere)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            Debug.Log("Spawn Mesh");
+            VertexMesh = Instantiate(sphere);
+            VertexMesh.transform.SetParent(this.transform);
+            VertexMesh.transform.localPosition = new Vector3(0, 0, 0);
+        }
+        else if(_depth == 0)
+        {
+            Debug.Log("Spawn Mesh");
+            VertexMesh = Instantiate(sphere);
+            VertexMesh.transform.SetParent(this.transform);
+            VertexMesh.transform.localPosition = new Vector3(0,0,0);
+        }
+
     }
 
-    public void CastEdge() {
+    public void DestroyMesh(int _depth)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            Destroy(VertexMesh);
+        }
+        else if (_depth == 0)
+        {
+            Destroy(VertexMesh);
+        }
+
     }
 }

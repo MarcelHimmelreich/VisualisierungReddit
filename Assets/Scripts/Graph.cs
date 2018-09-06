@@ -161,6 +161,29 @@ public class Graph : MonoBehaviour {
 
     }
 
+    public float GetMaxValue(string attribute)
+    {
+        Debug.Log("Attribute " + attribute);
+        float maxvalue = 0;
+        if (Comments.Count == 0)
+        {
+            return maxvalue;
+        }
+        else
+        {
+            foreach (GameObject _comment in Comments)
+            {
+                float commentvalue = _comment.GetComponent<Vertex>().GetMaxValue(attribute); ;
+                if (commentvalue > maxvalue)
+                {
+                    maxvalue = commentvalue;
+                }
+
+            }
+            return maxvalue;
+        }
+    }
+
     public void CastEdge() {
     }
 }

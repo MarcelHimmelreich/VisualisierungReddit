@@ -9,6 +9,16 @@ public class GraphManager : MonoBehaviour {
     public static event ForceGraph ApplyForce;
     public static event ForceGraph ApplyForceDepth;
     public static event ForceGraph CreateParentComments;
+    public static event ForceGraph PrintData;
+
+    public delegate void GraphTransform(int depth, string attribute, float maxvalue);
+    public static event GraphTransform SendTransform;
+
+    public delegate void MeshSpawn(int depth, GameObject mesh);
+    public static event MeshSpawn Spawn;
+
+    public delegate void MeshDestroy(int depth);
+    public static event MeshDestroy Destroy;
 
     // View
     public GameObject UserInterface;
@@ -30,6 +40,18 @@ public class GraphManager : MonoBehaviour {
     // 
     public GameObject submission_prefab;
 
+    //Mesh Objects
+    public List<GameObject> Mesh;
+
+    //Dimension Variables
+
+    public string attribute_transform = "upvote";
+    public string attribute_color = "upvote";
+
+    public int transform_depth = 0;
+    public int color_depth = 0;
+
+
 	// Use this for initialization
 	void Start () {
 		
@@ -41,6 +63,46 @@ public class GraphManager : MonoBehaviour {
 	}
     public void SetDepthCounter() {
 
+    }
+
+    public void SendMaxDistance(int depth, float maxdistance)
+    {
+
+    }
+
+    public void ApplyForceToNodes()
+    {
+        
+    }
+
+    public void SendPrintData()
+    {
+        PrintData();
+    }
+
+    public void SendSpawn(int depth)
+    {
+        Spawn(depth, Mesh[0]);
+    }
+
+    public void SendDestroyMesh(int depth)
+    {
+        Destroy(depth);
+    }
+
+    public void SendTransformToNodes(int submission)
+    {
+        float maxvalue = 0;
+        if (Submission.Count > 1)
+        {
+            maxvalue = Submission[submission].GetComponent<Graph>().GetMaxValue(attribute_transform); 
+        }
+        else
+        {
+            maxvalue = Submission[0].GetComponent<Graph>().GetMaxValue(attribute_transform);
+        }
+        Debug.Log("Max Value: "  + maxvalue);
+        SendTransform(transform_depth, attribute_transform, maxvalue);
     }
 
     public void SetDepth() {
@@ -87,7 +149,7 @@ public class GraphManager : MonoBehaviour {
         {
             
             submission.GetComponent<Graph>().getDepthNodes();
-            submission.GetComponent<Graph>().CountAllVerticesDepth();
+            //submission.GetComponent<Graph>().CountAllVerticesDepth();
             //submission.GetComponent<Graph>().Apply(1);
         }
         Debug.Log("Force Graph Configuration complete!");
