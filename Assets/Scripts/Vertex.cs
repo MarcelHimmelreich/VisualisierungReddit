@@ -82,7 +82,8 @@ public class Vertex : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
         velocity_magnitude = rigidbody.velocity.magnitude;
         if (applyphysics)
         {
@@ -99,33 +100,12 @@ public class Vertex : MonoBehaviour {
             CalculateSphereVelocity();
             ApplySphereForce();
             CheckParentDistance();
-            /*if (applyforce)
-            {
-                ApplyForce();
-                CheckVelocity();
-                //Debug.Log("Apply Force");
-            }
-            if (applyforceneighbour)
-            {
-                ApplyForceNeighbour();
-                CheckParentDistance();
-                //Debug.Log("Apply Neighbour Force");
-            }
-            if (applyforceorigin)
-            {
-                ApplySphereForce();
-                CheckNeighbourDistance();
-                //Debug.Log("Apply Sphere Force");
-
-            }*/
 
             CheckVelocityDirection();
             //CheckPositionComplete();
         }
-
         if (drawline) {
             SetLine();
-
         }
     }
 
@@ -554,40 +534,67 @@ public class Vertex : MonoBehaviour {
 
     }
 
-    public void SetLineColour(string author, Color startcolor,  Color endcolor)
-    {
-        if (author == comment.Author)
-        {
-            GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
-        }
-    }
-
-    public void SetLineWidth(string author, float startwidth, float endwidth)
-    {
-        if (author == comment.Author)
-        {
-            GetComponent<LineRenderer>().SetWidth(startwidth, endwidth);
-        }
-    }
-
-    public void SetMaterial(string author, Material material)
-    {
-        if (author == comment.Author)
-        {
-            GetComponent<LineRenderer>().material = material;
-        }
-    }
-
-    public void CreateMesh(int _depth, GameObject sphere)
+    public void SetLineColour(int _depth, string author, Color startcolor, Color endcolor)
     {
         if (depth == _depth && _depth > 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
+            }
+        }
+        else if (_depth == 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
+            }
+        }
+    }
+    public void SetLineWidth(int _depth, string author, float startwidth, float endwidth)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().SetWidth(startwidth, endwidth);
+            }
+        }
+        else if (_depth == 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().SetWidth(startwidth, endwidth);
+            }
+        }
+    }
+    public void SetMaterial(int _depth, string author, Material material)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().material = material;
+            }
+        }
+        else if (_depth == 0)
+        {
+            if (author == comment.Author)
+            {
+                GetComponent<LineRenderer>().material = material;
+            }
+        }
+    }
+    public void CreateMesh(int _depth, GameObject sphere)
+    {
+        if (depth == _depth && _depth > 0 && VertexMesh == null)
         {
             Debug.Log("Spawn Mesh");
             VertexMesh = Instantiate(sphere);
             VertexMesh.transform.SetParent(this.transform);
             VertexMesh.transform.localPosition = new Vector3(0, 0, 0);
         }
-        else if(_depth == 0)
+        else if(_depth == 0 && VertexMesh == null)
         {
             Debug.Log("Spawn Mesh");
             VertexMesh = Instantiate(sphere);
@@ -599,11 +606,11 @@ public class Vertex : MonoBehaviour {
 
     public void DestroyMesh(int _depth)
     {
-        if (depth == _depth && _depth > 0)
+        if (depth == _depth && _depth > 0 && VertexMesh != null)
         {
             Destroy(VertexMesh);
         }
-        else if (_depth == 0)
+        else if (_depth == 0 && VertexMesh != null)
         {
             Destroy(VertexMesh);
         }
