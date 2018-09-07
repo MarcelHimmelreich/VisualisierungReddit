@@ -14,7 +14,7 @@ public class Graph : MonoBehaviour {
 
     //Reddit Submission Data Structure
     public Submission submission;
-    public List<GameObject> Comments;
+    public List<GameObject> CommentNode;
 
     public List<int> depth_counter = new List<int>();
     public List<int> depth_counter_done = new List<int>();
@@ -101,7 +101,7 @@ public class Graph : MonoBehaviour {
     }
 
     public void SetDepth() {
-        foreach (GameObject comment in Comments) {
+        foreach (GameObject comment in CommentNode) {
             comment.GetComponent<Node>().SetDepth(depth+1);
         }
     }
@@ -133,14 +133,14 @@ public class Graph : MonoBehaviour {
     }
 
     public void getDepthNodes() {
-        foreach (GameObject comment in Comments) {
+        foreach (GameObject comment in CommentNode) {
             comment.GetComponent<Node>().getVerticesDepthCount();
 
         }
     }
 
     public void MakeParents() {
-        foreach (GameObject comment in Comments) {
+        foreach (GameObject comment in CommentNode) {
             comment.GetComponent<Node>().SetParent(this.transform);
             comment.GetComponent<Node>().MakeParent();
         }
@@ -151,11 +151,11 @@ public class Graph : MonoBehaviour {
             Debug.Log("comment: " + comment);
             GameObject new_comment = Instantiate(Vertex_prefab) as GameObject;
             new_comment.GetComponent<Rigidbody>().velocity = Random.onUnitSphere * max_distance;
-            Comments.Add(new_comment);
+            CommentNode.Add(new_comment);
             new_comment.GetComponent<Node>().comment = comment;
             new_comment.GetComponent<Node>().Parent = this.gameObject;
             new_comment.GetComponent<Node>().Origin = this.gameObject;
-            new_comment.GetComponent<Node>().Comments = new_comment.GetComponent<Node>().CreateComment(comment, new_comment, this.gameObject);
+            new_comment.GetComponent<Node>().CommentNode = new_comment.GetComponent<Node>().CreateComment(comment, new_comment, this.gameObject);
 
         }
 
@@ -165,13 +165,13 @@ public class Graph : MonoBehaviour {
     {
         Debug.Log("Attribute " + attribute);
         float maxvalue = 0;
-        if (Comments.Count == 0)
+        if (CommentNode.Count == 0)
         {
             return maxvalue;
         }
         else
         {
-            foreach (GameObject _comment in Comments)
+            foreach (GameObject _comment in CommentNode)
             {
                 float commentvalue = _comment.GetComponent<Node>().GetMaxValue(attribute); ;
                 if (commentvalue > maxvalue)

@@ -14,8 +14,8 @@ public class Node : MonoBehaviour {
 
     //Reddit Comment Data Structure
     public Comment comment;
-    public List<GameObject> Comments;
-    public List<GameObject> ParentComments;
+    public List<GameObject> CommentNode;
+    public List<GameObject> ParentCommentNode;
 
     //Depth for Graph in Commentforest
     public int depth = 0;
@@ -173,7 +173,7 @@ public class Node : MonoBehaviour {
     public void SetMaxDistance(float distance) {
         if (distance == 0) {
 
-            max_parent_distance = ParentComments.Count/3;
+            max_parent_distance = ParentCommentNode.Count/3;
         }
         else
         {
@@ -218,7 +218,7 @@ public class Node : MonoBehaviour {
     }
 
     public void CheckNeighbourDistance(){
-        float distance = Vector3.Distance(ParentComments[closest_neighbour].transform.position, transform.position);
+        float distance = Vector3.Distance(ParentCommentNode[closest_neighbour].transform.position, transform.position);
 
         if (distance > min_neighbour_distance && velocity.magnitude < min_velocity)
         {
@@ -306,7 +306,7 @@ public class Node : MonoBehaviour {
         {
             if (closest_neighbour_distance < max_neighbour_distance - range_distance)
             {
-                neighbour_direction = -(ParentComments[closest_neighbour].transform.position - transform.position).normalized;
+                neighbour_direction = -(ParentCommentNode[closest_neighbour].transform.position - transform.position).normalized;
 
             }
             else if (closest_neighbour_distance > max_neighbour_distance + range_distance)
@@ -341,7 +341,7 @@ public class Node : MonoBehaviour {
     //Apply Force from Every Neighbour
     public void ApplyForceNeighbour()
     {
-        if (ParentComments.Count > 1)
+        if (ParentCommentNode.Count > 1)
         {
             if (!float.IsNaN(neighbour_direction.x) && !float.IsNaN(neighbour_direction.y) && !float.IsNaN(neighbour_direction.z))
             {
@@ -352,10 +352,10 @@ public class Node : MonoBehaviour {
     }
 
     public void GetClosestNeighbour() {
-        for(int i = 0;i<ParentComments.Count;++i){
-            if (ParentComments[i].GetComponent<Node>().comment.Id != comment.Id)
+        for(int i = 0;i< ParentCommentNode.Count;++i){
+            if (ParentCommentNode[i].GetComponent<Node>().comment.Id != comment.Id)
             {
-                float distance = Vector3.Distance(ParentComments[i].transform.position, transform.position);
+                float distance = Vector3.Distance(ParentCommentNode[i].transform.position, transform.position);
                 if (distance < closest_neighbour_distance && distance > 0 || closest_neighbour_distance == 0)
                 {
                     closest_neighbour_distance = distance;
@@ -383,7 +383,8 @@ public class Node : MonoBehaviour {
 
     public void SetDepth(int new_depth) {
         depth = new_depth;
-        foreach (GameObject comment in Comments){
+        foreach (GameObject comment in CommentNode)
+        {
             comment.GetComponent<Node>().SetDepth(depth+1);
         }
 
@@ -393,11 +394,11 @@ public class Node : MonoBehaviour {
     //rekursiv function
     public int getVerticesCount(int value = 0) {
         int count = value;
-        if (Comments.Count == 0) {
+        if (CommentNode.Count == 0) {
             return 1;
         }
-        else if (Comments.Count > 0) {
-            foreach (GameObject node in Comments) {
+        else if (CommentNode.Count > 0) {
+            foreach (GameObject node in CommentNode) {
                 count += node.GetComponent<Node>().getVerticesCount();
             }
         }
@@ -408,7 +409,7 @@ public class Node : MonoBehaviour {
     public void getVerticesDepthCount()
     {
             sendVerticesDepthCount();
-            foreach (GameObject node in Comments)
+            foreach (GameObject node in CommentNode)
             {
                 node.GetComponent<Node>().getVerticesDepthCount();
             }
@@ -427,7 +428,7 @@ public class Node : MonoBehaviour {
                 new_comment_object.GetComponent<Node>().comment = new_comment;
                 new_comment_object.GetComponent<Node>().Origin = origin;
                 new_comment_object.GetComponent<Node>().Parent = parent;
-                new_comment_object.GetComponent<Node>().Comments = CreateComment(new_comment_object.GetComponent<Node>().comment, 
+                new_comment_object.GetComponent<Node>().CommentNode = CreateComment(new_comment_object.GetComponent<Node>().comment, 
                     new_comment_object, 
                     new_comment_object.GetComponent<Node>().Origin);             
                 
@@ -442,9 +443,9 @@ public class Node : MonoBehaviour {
     }
     public void MakeParent() {
         Debug.Log("Make Parents");
-        if (Comments != null || Comments.Count == 0)
+        if (CommentNode != null || CommentNode.Count == 0)
         {
-            foreach (GameObject comment in Comments)
+            foreach (GameObject comment in CommentNode)
             {
                 comment.GetComponent<Node>().SetParent(this.transform);
                 comment.GetComponent<Node>().MakeParent();
@@ -461,11 +462,11 @@ public class Node : MonoBehaviour {
     public void GetParentComments() {
         if (depth > 1)
         {
-            ParentComments = Parent.GetComponent<Node>().Comments;
+            ParentCommentNode = Parent.GetComponent<Node>().CommentNode;
         }
         else
         {
-            ParentComments = Parent.GetComponent<Graph>().Comments;
+            ParentCommentNode = Parent.GetComponent<Graph>().CommentNode;
         }
         
 
@@ -523,13 +524,13 @@ public class Node : MonoBehaviour {
     public float GetMaxValue(string attribute)
     {
         float maxvalue = GetAttributeValue(attribute);
-        if (Comments.Count == 0)
+        if (CommentNode.Count == 0)
         {
             return maxvalue;
         }
         else
         {
-            foreach (GameObject _comment in Comments)
+            foreach (GameObject _comment in CommentNode)
             {
                 float commentvalue = _comment.GetComponent<Node>().GetMaxValue(attribute); ;
                 if (commentvalue > maxvalue)
