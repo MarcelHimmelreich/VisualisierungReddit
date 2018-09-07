@@ -24,7 +24,7 @@ public class Graph : MonoBehaviour {
     public bool created = false;
     public bool castGraph = false;
     public GameObject Vertex_prefab;
-    public float maxDistance = 50;
+    public float max_distance = 50;
     public int depth = 0;
 
 
@@ -47,14 +47,14 @@ public class Graph : MonoBehaviour {
     }
 
     void OnEnable() {
-        Vertex.SendVerticesCount += CountVertices;
-        Vertex.SendDepth += AddDepthCounter; 
+        Node.SendVerticesCount += CountVertices;
+        Node.SendDepth += AddDepthCounter; 
     }
 
     void OnDisable()
     {
-        Vertex.SendVerticesCount -= CountVertices;
-        Vertex.SendDepth -= AddDepthCounter;
+        Node.SendVerticesCount -= CountVertices;
+        Node.SendDepth -= AddDepthCounter;
     }
 
     public void CheckDepth(int depth) {
@@ -102,7 +102,7 @@ public class Graph : MonoBehaviour {
 
     public void SetDepth() {
         foreach (GameObject comment in Comments) {
-            comment.GetComponent<Vertex>().SetDepth(depth+1);
+            comment.GetComponent<Node>().SetDepth(depth+1);
         }
     }
 
@@ -134,15 +134,15 @@ public class Graph : MonoBehaviour {
 
     public void getDepthNodes() {
         foreach (GameObject comment in Comments) {
-            comment.GetComponent<Vertex>().getVerticesDepthCount();
+            comment.GetComponent<Node>().getVerticesDepthCount();
 
         }
     }
 
     public void MakeParents() {
         foreach (GameObject comment in Comments) {
-            comment.GetComponent<Vertex>().SetParent(this.transform);
-            comment.GetComponent<Vertex>().MakeParent();
+            comment.GetComponent<Node>().SetParent(this.transform);
+            comment.GetComponent<Node>().MakeParent();
         }
     }
 
@@ -150,12 +150,12 @@ public class Graph : MonoBehaviour {
         foreach (Comment comment in submission.Comments) {
             Debug.Log("comment: " + comment);
             GameObject new_comment = Instantiate(Vertex_prefab) as GameObject;
-            new_comment.GetComponent<Rigidbody>().velocity = Random.onUnitSphere * maxDistance;
+            new_comment.GetComponent<Rigidbody>().velocity = Random.onUnitSphere * max_distance;
             Comments.Add(new_comment);
-            new_comment.GetComponent<Vertex>().comment = comment;
-            new_comment.GetComponent<Vertex>().Parent = this.gameObject;
-            new_comment.GetComponent<Vertex>().Origin = this.gameObject;
-            new_comment.GetComponent<Vertex>().Comments = new_comment.GetComponent<Vertex>().CreateComment(comment, new_comment, this.gameObject);
+            new_comment.GetComponent<Node>().comment = comment;
+            new_comment.GetComponent<Node>().Parent = this.gameObject;
+            new_comment.GetComponent<Node>().Origin = this.gameObject;
+            new_comment.GetComponent<Node>().Comments = new_comment.GetComponent<Node>().CreateComment(comment, new_comment, this.gameObject);
 
         }
 
@@ -173,7 +173,7 @@ public class Graph : MonoBehaviour {
         {
             foreach (GameObject _comment in Comments)
             {
-                float commentvalue = _comment.GetComponent<Vertex>().GetMaxValue(attribute); ;
+                float commentvalue = _comment.GetComponent<Node>().GetMaxValue(attribute); ;
                 if (commentvalue > maxvalue)
                 {
                     maxvalue = commentvalue;

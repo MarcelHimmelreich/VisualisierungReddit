@@ -12,6 +12,9 @@ public class UserInterfaceManager : MonoBehaviour {
     //View
     public GameObject Model;
 
+    public GameObject LoadMenu;
+    public GameObject GraphMenu;
+
     //Graph Data Display
     public Text force;
     public Text neighbour_force;
@@ -64,6 +67,12 @@ public class UserInterfaceManager : MonoBehaviour {
 
     void GetMarkedVertices() {
 
+    }
+
+    public void Loaded()
+    {
+        LoadMenu.SetActive(false);
+        GraphMenu.SetActive(true);
     }
 
     public void SetSubmission(Submission submission)

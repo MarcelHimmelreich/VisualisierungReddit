@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 54094890495327332}
   - component: {fileID: 120509257089336296}
   m_Layer: 0
-  m_Name: Vertex
+  m_Name: Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,42 +73,42 @@ MonoBehaviour:
   depth: 0
   comment_count: 0
   mat: {fileID: 0}
-  vertextransform: {fileID: 0}
+  Node_transform: {fileID: 0}
   Position: {x: 0, y: 0, z: 0}
   rigidbody: {fileID: 0}
   Origin: {fileID: 0}
   Parent: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
   velocity_origin: {x: 0, y: 0, z: 0}
-  velocity_magnitude: 0
   velocity_neighbor: []
-  neighbourdistance: []
+  neighbour_distance: []
   force: 25
   force_neighbor: 5
   force_sphere: 15
-  maxvelocity: 5
-  maxDistance: 20
-  minDistance: 20
-  rangeDistance: 1
-  maxneighbourdistance: 5
-  minneighbourdistance: 5
-  neighbourrangeDistance: 1
-  minvelocity: 0.5
-  parentdistance: 0
-  origindistance: 0
-  applyphysics: 1
-  applyforce: 1
-  applyforceneighbour: 1
-  applyforceorigin: 1
-  checkforce: 0
-  drawline: 1
-  neighbourdirection: {x: 0, y: 0, z: 0}
-  closestneighbour: 0
-  closestneighbourdistance: 0
-  NearNeighbour: []
-  Vertex_prefab: {fileID: 1449240876399500}
+  max_velocity: 5
+  min_velocity: 0.1
+  velocity_magnitude: 0
+  max_parent_distance: 10
+  min_parent_distance: 10
+  range_distance: 1
+  max_neighbour_distance: 5
+  min_neighbour_distance: 5
+  neighbour_range_distance: 1
+  parent_distance: 0
+  origin_distance: 0
+  apply_physics: 1
+  apply_force: 0
+  apply_force_neighbour: 0
+  apply_force_origin: 1
+  check_force: 1
+  draw_line: 1
+  neighbour_direction: {x: 0, y: 0, z: 0}
+  closest_neighbour: 0
+  closest_neighbour_distance: 0
+  Near_Neighbour: []
+  Node_prefab: {fileID: 1449240876399500}
   counter: 0
-  VertexMesh: {fileID: 0}
+  NodeMesh: {fileID: 0}
   marked: 0
   maxscale: 2
 --- !u!120 &120509257089336296

@@ -16,6 +16,7 @@ public class Model : MonoBehaviour {
 
     public List<Submission> submissions { get; set; }
 
+    public string file_path;
 
     // Use this for initialization
     void Start () {
@@ -29,12 +30,33 @@ public class Model : MonoBehaviour {
 
     //Load Json Data and stores it
     //Create a Dictionary from Json
-    public void LoadJson(string filepath) {
-        Debug.Log("Loading Json Data...");
-        var json = File.ReadAllText(filepath);
+    public void LoadJson() {
+        if (file_path != null)
+        {
+            Debug.Log("Loading Json Data...");
+            var json = File.ReadAllText(file_path);
 
-        subreddit = Subreddit.FromJson(json);
-        Debug.Log("Success!");
+            subreddit = Subreddit.FromJson(json);
+            if (subreddit != null)
+            {
+                UserInterface.GetComponent<UserInterfaceManager>().Loaded();
+                Debug.Log("Loading Data Success!");
+            }
+            else
+            {
+                Debug.Log("Unable to load json data with given path!");
+            }
+        }
+        else
+        {
+            Debug.Log("Unable to load json data with given path!");
+        }
+
+    }
+
+    public void SetFilePath(string path)
+    {
+        file_path = path;
     }
 
     public void PrintAll()
