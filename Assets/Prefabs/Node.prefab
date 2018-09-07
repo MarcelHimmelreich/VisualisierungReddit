@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 114924350647140430}
   - component: {fileID: 54094890495327332}
   - component: {fileID: 120509257089336296}
+  - component: {fileID: 135379069100538932}
   m_Layer: 0
   m_Name: Node
   m_TagString: Untagged
@@ -68,8 +69,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 500851c479a9cd345b1491913c199e48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Comments: []
-  ParentComments: []
+  CommentNode: []
+  ParentCommentNode: []
   depth: 0
   comment_count: 0
   mat: {fileID: 0}
@@ -212,3 +213,15 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!135 &135379069100538932
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1449240876399500}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}

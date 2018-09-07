@@ -20,6 +20,9 @@ public class GraphManager : MonoBehaviour {
     public delegate void MeshDestroy(int depth);
     public static event MeshDestroy Destroy;
 
+    public delegate void Highlight(string author, Material highlight);
+    public static event Highlight HighlightAuthor;
+
     // View
     public GameObject UserInterface;
     public UserInterfaceManager UIComponent;

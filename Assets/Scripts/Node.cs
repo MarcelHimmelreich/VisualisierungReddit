@@ -12,6 +12,9 @@ public class Node : MonoBehaviour {
     public delegate void NodeDepthSender(int depth);
     public static event NodeDepthSender SendDepth;
 
+    public delegate void InterfaceSender(Comment comment);
+    public static event InterfaceSender SendComment;
+
     //Reddit Comment Data Structure
     public Comment comment;
     public List<GameObject> CommentNode;
@@ -96,8 +99,6 @@ public class Node : MonoBehaviour {
         velocity_magnitude = rigidbody.velocity.magnitude;
         if (apply_physics)
         {
-
-
             CalculateVelocity();
             ApplyForce();
             CheckVelocity();
@@ -141,6 +142,11 @@ public class Node : MonoBehaviour {
         GraphManager.Spawn -= CreateMesh;
         GraphManager.Destroy -= DestroyMesh;
         ShaderManager.SendMaterial -= SetMaterial;
+    }
+
+    void OnMouseDown()
+    {
+        SendComment(comment);
     }
 
     public void SetApplyByDepth(int _depth)
@@ -584,14 +590,14 @@ public class Node : MonoBehaviour {
         {
             if (author == comment.Author)
             {
-                GetComponent<LineRenderer>().material = material;
+                NodeMesh.GetComponent<Renderer>().material = material;
             }
         }
         else if (_depth == 0)
         {
             if (author == comment.Author)
             {
-                GetComponent<LineRenderer>().material = material;
+                NodeMesh.GetComponent<Renderer>().material = material;
             }
         }
     }

@@ -12,6 +12,10 @@ public class Graph : MonoBehaviour {
     public delegate void ForceVertex(int depth);
     public static event ForceVertex ApplyForce;
 
+    public delegate void InterfaceSender(Submission submission);
+    public static event InterfaceSender SendSubmission;
+
+
     //Reddit Submission Data Structure
     public Submission submission;
     public List<GameObject> CommentNode;
@@ -55,6 +59,11 @@ public class Graph : MonoBehaviour {
     {
         Node.SendVerticesCount -= CountVertices;
         Node.SendDepth -= AddDepthCounter;
+    }
+
+    void OnMouseDown()
+    {
+        SendSubmission(submission);
     }
 
     public void CheckDepth(int depth) {
