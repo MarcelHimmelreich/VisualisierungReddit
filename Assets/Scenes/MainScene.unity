@@ -3841,7 +3841,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GraphManager: {fileID: 856546927}
-  ShaderManager: {fileID: 0}
+  ShaderManager: {fileID: 838345299}
   Model: {fileID: 857463216}
   LoadMenu: {fileID: 680499992}
   GraphMenu: {fileID: 1490880344}
@@ -4467,7 +4467,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1490880345
 RectTransform:
   m_ObjectHideFlags: 0
