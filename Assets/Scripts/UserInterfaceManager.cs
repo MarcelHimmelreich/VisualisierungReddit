@@ -27,6 +27,8 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text max_neighbour_distance;
     public Text min_neighbour_distance;
     public Text distance_tolerance_neighbour;
+    public Text max_velocity;
+    public Text min_force_apply;
 
     //Submission Data
     //Marked Submission
@@ -103,6 +105,12 @@ public class UserInterfaceManager : MonoBehaviour {
     {
         LoadMenu.SetActive(false);
         GraphMenu.SetActive(true);
+    }
+
+    //Todo
+    public void UpdateSettingsText()
+    {
+        
     }
 
     public void SetSubmission(Submission submission)

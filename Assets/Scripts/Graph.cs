@@ -18,7 +18,9 @@ public class Graph : MonoBehaviour {
 
     //Reddit Submission Data Structure
     public Submission submission;
-    public List<GameObject> CommentNode;
+    public List<GameObject> CommentNode = new List<GameObject>();
+    public List<GameObject> Nodes = new List<GameObject>();
+    public List<List<GameObject>> NodesPerDepth = new List<List<GameObject>>();
 
     public List<int> depth_counter = new List<int>();
     public List<int> depth_counter_done = new List<int>();
@@ -30,15 +32,12 @@ public class Graph : MonoBehaviour {
     public GameObject Vertex_prefab;
     public float max_distance = 50;
     public int depth = 0;
-
-
-
-    public void SetGraph() {
-    }
+    public int max_depth = 0;
 
     // Use this for initialization
     void Start() {
         depth_counter_done.Add(0);
+        NodesPerDepth.Add(new List<GameObject>());
 
     }
 
@@ -80,7 +79,43 @@ public class Graph : MonoBehaviour {
 
     }
 
-    public void Apply(int depth) {
+    public void AddNodes(int depth, GameObject node)
+    {
+        if (depth > max_depth)
+        {
+            for (int i = 0; i<depth-max_depth;++i)
+            {
+                NodesPerDepth.Add(new List<GameObject>());
+            }
+        }
+        Debug.Log("NodesPerDepth Count: " + NodesPerDepth.Count);
+        if (!Nodes.Contains(node))
+        {
+            Nodes.Add(node);
+        }
+        if (depth < NodesPerDepth.Count)
+        {
+            NodesPerDepth[depth].Add(node);
+        }
+    }
+
+    public List<GameObject> GetNodesPerDepth(int depth)
+    {
+        if (depth == 0)
+        {
+            return Nodes;
+        }
+        else if (depth < NodesPerDepth.Count)
+        {
+            return NodesPerDepth[depth];
+        }
+        else
+        {
+            return Nodes;
+        }
+    }
+
+    public void ApplyForcePerDepth(int depth) {
         ApplyForce(depth);
     }
 
@@ -109,12 +144,7 @@ public class Graph : MonoBehaviour {
         }
     }
 
-    public void SetDepth() {
-        foreach (GameObject comment in CommentNode) {
-            comment.GetComponent<Node>().SetDepth(depth+1);
-        }
-    }
-
+    //Count Nodes for a single depth
     public void CountVertices(int depth, int value) {
         if (depth > depth_counter_all.Count)
         {
@@ -129,6 +159,7 @@ public class Graph : MonoBehaviour {
 
     }
 
+    //Counts nodes for every depth by calling a event to all nodes
     public void CountAllVerticesDepth() {
         depth_counter_all.Clear();
         count();
@@ -148,6 +179,16 @@ public class Graph : MonoBehaviour {
         }
     }
 
+    public void CheckMaxdepth(int depth)
+    {
+        if (depth > max_depth)
+        {
+            max_depth = depth;
+        }
+    }
+
+
+    //Set the parent of a node  to create a tree like structure in the game scene
     public void MakeParents() {
         foreach (GameObject comment in CommentNode) {
             comment.GetComponent<Node>().SetParent(this.transform);
@@ -155,6 +196,7 @@ public class Graph : MonoBehaviour {
         }
     }
 
+    //Create a graph from a submission with every comment
     public void CreateGraph(Submission submission) {
         foreach (Comment comment in submission.Comments) {
             Debug.Log("comment: " + comment);
@@ -164,6 +206,8 @@ public class Graph : MonoBehaviour {
             new_comment.GetComponent<Node>().comment = comment;
             new_comment.GetComponent<Node>().Parent = this.gameObject;
             new_comment.GetComponent<Node>().Origin = this.gameObject;
+            new_comment.GetComponent<Node>().depth = 1;
+            //Calls a recursive function for every comment
             new_comment.GetComponent<Node>().CommentNode = new_comment.GetComponent<Node>().CreateComment(comment, new_comment, this.gameObject);
 
         }

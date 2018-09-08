@@ -10,6 +10,8 @@ public class GraphManager : MonoBehaviour {
     public static event ForceGraph ApplyForceDepth;
     public static event ForceGraph CreateParentComments;
     public static event ForceGraph PrintData;
+    public static event ForceGraph GetMaxDepth;
+    public static event ForceGraph AddNodesToGraph;
 
     public delegate void GraphTransform(int depth, string attribute, float maxvalue);
     public static event GraphTransform SendTransform;
@@ -37,8 +39,7 @@ public class GraphManager : MonoBehaviour {
     public List<GameObject> Submission;
     public int createdGraph = 0;
 
-    // Vertex
-    public List<GameObject> Vertices;
+
 
     // 
     public GameObject submission_prefab;
@@ -55,15 +56,15 @@ public class GraphManager : MonoBehaviour {
     public int color_depth = 0;
 
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
     public void SetDepthCounter() {
 
     }
@@ -75,7 +76,7 @@ public class GraphManager : MonoBehaviour {
 
     public void ApplyForceToNodes()
     {
-        
+
     }
 
     public void SendPrintData()
@@ -93,6 +94,17 @@ public class GraphManager : MonoBehaviour {
         Destroy(depth);
     }
 
+    public void MaxDepth()
+    {
+        GetMaxDepth();
+    }
+
+    public void CreateNodesList()
+    {
+        AddNodesToGraph();
+    }
+
+
     public void SendTransformToNodes(int submission)
     {
         float maxvalue = 0;
@@ -108,18 +120,13 @@ public class GraphManager : MonoBehaviour {
         SendTransform(transform_depth, attribute_transform, maxvalue);
     }
 
-    public void SetDepth() {
-        foreach (GameObject submission in Submission) {
-            submission.GetComponent<Graph>().SetDepth();
-        }
-    }
-
     public void MakeParents() {
         foreach (GameObject submission in Submission) {
             submission.GetComponent<Graph>().MakeParents();
         }
     }
 
+    //Create a single graph by id in a array or all submissions
     public void CreateGraph(int value = -1) {
         Debug.Log("Creating Force Graph...");
         createdGraph = value;
@@ -145,9 +152,10 @@ public class GraphManager : MonoBehaviour {
         }
         Debug.Log("Force Graph Creation complete!");
         Debug.Log("Configure Force Graph...");
-        SetDepth();
         MakeParents();
         CreateParentComments();
+        MaxDepth();
+        CreateNodesList();
         foreach (GameObject submission in Submission)
         {
             
@@ -156,6 +164,12 @@ public class GraphManager : MonoBehaviour {
             //submission.GetComponent<Graph>().Apply(1);
         }
         Debug.Log("Force Graph Configuration complete!");
+
+    }
+
+    //Todo
+    public void DeleteGraph(int submission)
+    {
 
     }
 

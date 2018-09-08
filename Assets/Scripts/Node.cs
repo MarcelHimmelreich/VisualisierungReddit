@@ -71,6 +71,7 @@ public class Node : MonoBehaviour {
     public bool draw_line = true;
 
     public Vector3 neighbour_direction;
+    public Vector3 neighbour_position;
     public int closest_neighbour = 0;
     public float closest_neighbour_distance = 0;
     public List<GameObject> Near_Neighbour;
@@ -128,6 +129,8 @@ public class Node : MonoBehaviour {
         GraphManager.SendTransform += SetTransformScale;
         GraphManager.Spawn += CreateMesh;
         GraphManager.Destroy += DestroyMesh;
+        GraphManager.GetMaxDepth += SendDepthToGraph;
+        GraphManager.AddNodesToGraph += AddToGraph;
         ShaderManager.SendMaterial += SetMaterial;
 
     }
@@ -141,6 +144,8 @@ public class Node : MonoBehaviour {
         GraphManager.SendTransform -= SetTransformScale;
         GraphManager.Spawn -= CreateMesh;
         GraphManager.Destroy -= DestroyMesh;
+        GraphManager.GetMaxDepth -= SendDepthToGraph;
+        GraphManager.AddNodesToGraph -= AddToGraph;
         ShaderManager.SendMaterial -= SetMaterial;
     }
 
@@ -188,6 +193,11 @@ public class Node : MonoBehaviour {
 
     }
 
+    public void SendDepthToGraph()
+    {
+        Origin.GetComponent<Graph>().CheckMaxdepth(depth);
+    }
+
     public void CheckVelocityDirection()
     {
         if (velocity == new Vector3(-1, -1, -1))
@@ -224,9 +234,10 @@ public class Node : MonoBehaviour {
     }
 
     public void CheckNeighbourDistance(){
-        float distance = Vector3.Distance(ParentCommentNode[closest_neighbour].transform.position, transform.position);
+        GetClosestNeighbour();
+        float distance = Vector3.Distance(neighbour_position, transform.position);
 
-        if (distance > min_neighbour_distance && velocity.magnitude < min_velocity)
+        if (distance < min_neighbour_distance && velocity.magnitude < min_velocity && distance > max_neighbour_distance)
         {
             apply_force_neighbour = true;
         }
@@ -272,7 +283,7 @@ public class Node : MonoBehaviour {
         //Is in range
         else {
             //velocity = new Vector3(0,0,0);
-            rigidbody.AddRelativeForce(-velocity.normalized * force, ForceMode.Force);
+            rigidbody.AddForce(-velocity.normalized * force, ForceMode.Force);
             check_force = false;
         }
         velocity = velocity.normalized;
@@ -299,7 +310,7 @@ public class Node : MonoBehaviour {
         else
         {
             //velocity = new Vector3(0,0,0);
-            rigidbody.AddRelativeForce(-velocity_origin * force, ForceMode.Force);
+            rigidbody.AddForce(-velocity_origin * force, ForceMode.Force);
             
         }
         velocity_origin = velocity_origin.normalized;
@@ -308,18 +319,6 @@ public class Node : MonoBehaviour {
     public void CalculateNeighborVelocity()
     {
         GetClosestNeighbour();
-        if (closest_neighbour_distance > 0)
-        {
-            if (closest_neighbour_distance < max_neighbour_distance - range_distance)
-            {
-                neighbour_direction = -(ParentCommentNode[closest_neighbour].transform.position - transform.position).normalized;
-
-            }
-            else if (closest_neighbour_distance > max_neighbour_distance + range_distance)
-            {
-                //neighbourdirection = (ParentComments[closestneighbour].transform.position - transform.position);
-            }
-        }
     }
 
 
@@ -329,17 +328,17 @@ public class Node : MonoBehaviour {
         {
             rigidbody = GetComponent<Rigidbody>();
         }
-        rigidbody.AddRelativeForce(velocity * force, ForceMode.Force);
+        rigidbody.AddForce(velocity * force, ForceMode.Force);
     }
 
     public void ApplySphereForce(bool inverse = false) {
         if (!inverse)
         {
-            rigidbody.AddRelativeForce(velocity_origin * force_sphere, ForceMode.Force);
+            rigidbody.AddForce(velocity_origin * force_sphere, ForceMode.Force);
         }
         else
         {
-            rigidbody.AddRelativeForce(-velocity_origin * force_sphere, ForceMode.Force);
+            rigidbody.AddForce(-velocity_origin * force_sphere, ForceMode.Force);
         }
 
     }
@@ -351,29 +350,38 @@ public class Node : MonoBehaviour {
         {
             if (!float.IsNaN(neighbour_direction.x) && !float.IsNaN(neighbour_direction.y) && !float.IsNaN(neighbour_direction.z))
             {
-                rigidbody.AddRelativeForce(neighbour_direction * force_neighbor, ForceMode.Force);
+                rigidbody.AddForce(neighbour_direction * force_neighbor, ForceMode.Force);
             }
 
         }
     }
 
     public void GetClosestNeighbour() {
-        for(int i = 0;i< ParentCommentNode.Count;++i){
-            if (ParentCommentNode[i].GetComponent<Node>().comment.Id != comment.Id)
+        List<GameObject> nodes =  Origin.GetComponent<Graph>().GetNodesPerDepth(depth);
+        for (int i = 0; i < nodes.Count; ++i)
+        {
+            if(nodes[i].GetComponent<Node>().comment.Id != comment.Id)
             {
-                float distance = Vector3.Distance(ParentCommentNode[i].transform.position, transform.position);
+                float distance = Vector3.Distance(nodes[i].transform.position, transform.position);
                 if (distance < closest_neighbour_distance && distance > 0 || closest_neighbour_distance == 0)
                 {
                     closest_neighbour_distance = distance;
                     closest_neighbour = i;
                 }
-                
             }
-            else
+        }
+        neighbour_position = nodes[closest_neighbour].transform.position;
+        if (closest_neighbour_distance > 0)
+        {
+            if (closest_neighbour_distance < max_neighbour_distance - range_distance)
             {
-                
+                neighbour_direction = -(nodes[closest_neighbour].transform.position - transform.position).normalized;
+
             }
-            
+            else if (closest_neighbour_distance > max_neighbour_distance + range_distance)
+            {
+                //neighbourdirection = (ParentComments[closestneighbour].transform.position - transform.position);
+            }
         }
     }
 
@@ -386,16 +394,6 @@ public class Node : MonoBehaviour {
         Debug.Log("Send Depth" + depth);
         //SendDepth(depth);
     }
-
-    public void SetDepth(int new_depth) {
-        depth = new_depth;
-        foreach (GameObject comment in CommentNode)
-        {
-            comment.GetComponent<Node>().SetDepth(depth+1);
-        }
-
-    }
-
 
     //rekursiv function
     public int getVerticesCount(int value = 0) {
@@ -434,6 +432,7 @@ public class Node : MonoBehaviour {
                 new_comment_object.GetComponent<Node>().comment = new_comment;
                 new_comment_object.GetComponent<Node>().Origin = origin;
                 new_comment_object.GetComponent<Node>().Parent = parent;
+                new_comment_object.GetComponent<Node>().depth = parent.GetComponent<Node>().depth + 1;
                 new_comment_object.GetComponent<Node>().CommentNode = CreateComment(new_comment_object.GetComponent<Node>().comment, 
                     new_comment_object, 
                     new_comment_object.GetComponent<Node>().Origin);             
@@ -447,6 +446,12 @@ public class Node : MonoBehaviour {
         return comments;
 
     }
+
+    public void AddToGraph()
+    {
+        Origin.GetComponent<Graph>().AddNodes(depth, this.gameObject);
+    }
+
     public void MakeParent() {
         Debug.Log("Make Parents");
         if (CommentNode != null || CommentNode.Count == 0)
@@ -567,6 +572,7 @@ public class Node : MonoBehaviour {
             }
         }
     }
+
     public void SetLineWidth(int _depth, string author, float startwidth, float endwidth)
     {
         if (depth == _depth && _depth > 0)
@@ -584,6 +590,7 @@ public class Node : MonoBehaviour {
             }
         }
     }
+
     public void SetMaterial(int _depth, string author, Material material)
     {
         if (depth == _depth && _depth > 0)
@@ -601,6 +608,7 @@ public class Node : MonoBehaviour {
             }
         }
     }
+
     public void CreateMesh(int _depth, GameObject sphere)
     {
         if (depth == _depth && _depth > 0 && NodeMesh == null)

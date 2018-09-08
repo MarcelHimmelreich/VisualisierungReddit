@@ -84,8 +84,8 @@ MonoBehaviour:
   velocity_neighbor: []
   neighbour_distance: []
   force: 25
-  force_neighbor: 5
-  force_sphere: 15
+  force_neighbor: 10
+  force_sphere: 20
   max_velocity: 5
   min_velocity: 0.1
   velocity_magnitude: 0
@@ -93,7 +93,7 @@ MonoBehaviour:
   min_parent_distance: 10
   range_distance: 1
   max_neighbour_distance: 5
-  min_neighbour_distance: 5
+  min_neighbour_distance: 3
   neighbour_range_distance: 1
   parent_distance: 0
   origin_distance: 0
@@ -104,6 +104,7 @@ MonoBehaviour:
   check_force: 1
   draw_line: 1
   neighbour_direction: {x: 0, y: 0, z: 0}
+  neighbour_position: {x: 0, y: 0, z: 0}
   closest_neighbour: 0
   closest_neighbour_distance: 0
   Near_Neighbour: []
