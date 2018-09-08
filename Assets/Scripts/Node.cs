@@ -37,13 +37,12 @@ public class Node : MonoBehaviour {
     public Vector3 velocity;
     public Vector3 velocity_origin;
 
-
     public List<Vector3> velocity_neighbor;
     public List<float> neighbour_distance;
 
     public float force = 1;
-    public float force_neighbor = 1;
-    public float force_sphere = 1;
+    public float force_neighbour = 1;
+    public float force_origin = 1;
 
     public float max_velocity = 5;
     public float min_velocity = 0.1f;
@@ -51,13 +50,11 @@ public class Node : MonoBehaviour {
 
     public float max_parent_distance = 10;
     public float min_parent_distance = 10;
-    public float range_distance = 1;
+    public float distance_tolerance = 1;
 
     public float max_neighbour_distance = 5;
     public float min_neighbour_distance = 5;
-    public float neighbour_range_distance = 1;
-
-
+    public float neighbour_distance_tolerance = 1;
 
     public float parent_distance = 0;
     public float origin_distance = 0;
@@ -95,22 +92,22 @@ public class Node : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         velocity_magnitude = rigidbody.velocity.magnitude;
         if (apply_physics)
         {
-            CalculateVelocity();
+            CalculateForceVelocity();
             ApplyForce();
-            CheckVelocity();
+            CheckForceVelocity();
 
-            CalculateNeighborVelocity();
+            CalculateNeighbourForceVelocity();
             ApplyForceNeighbour();
-            CheckNeighbourDistance();
+            CheckNeighbourForceDistance();
 
-            CalculateSphereVelocity();
-            ApplySphereForce();
-            CheckParentDistance();
+            CalculateOriginForceVelocity();
+            ApplyOriginForce();
+            CheckOriginForceDistance();
 
             CheckVelocityDirection();
             //CheckPositionComplete();
@@ -131,8 +128,19 @@ public class Node : MonoBehaviour {
         GraphManager.Destroy += DestroyMesh;
         GraphManager.GetMaxDepth += SendDepthToGraph;
         GraphManager.AddNodesToGraph += AddToGraph;
+        GraphManager.EnableForce +=EnableForce;
+        GraphManager.DisableForce += DisableForce;
         ShaderManager.SendMaterial += SetMaterial;
-
+        UserInterfaceManager.Force += SetForce;
+        UserInterfaceManager.NeighbourForce += SetForceNeighbour;
+        UserInterfaceManager.GravityForce += SetForceOrigin;
+        UserInterfaceManager.MaxDisParent += SetMaxDisParent;
+        UserInterfaceManager.MinDisParent += SetMinDisParent;
+        UserInterfaceManager.DisTolerance += SetDisTolerance;
+        UserInterfaceManager.MaxNeighDisParent += SetMaxNeighDisParent;
+        UserInterfaceManager.MinNeighDisParent += SetMinNeighDisParent;
+        UserInterfaceManager.NeighDisTolerance += SetNeighDisTolerance;
+        UserInterfaceManager.MinForceEnable += SetMinForceEnable;
     }
 
     void OnDisable()
@@ -146,12 +154,37 @@ public class Node : MonoBehaviour {
         GraphManager.Destroy -= DestroyMesh;
         GraphManager.GetMaxDepth -= SendDepthToGraph;
         GraphManager.AddNodesToGraph -= AddToGraph;
+        GraphManager.EnableForce -= EnableForce;
+        GraphManager.DisableForce -= DisableForce;
         ShaderManager.SendMaterial -= SetMaterial;
+        UserInterfaceManager.Force -= SetForce;
+        UserInterfaceManager.NeighbourForce -= SetForceNeighbour;
+        UserInterfaceManager.GravityForce -= SetForceOrigin;
+        UserInterfaceManager.MaxDisParent -= SetMaxDisParent;
+        UserInterfaceManager.MinDisParent -= SetMinDisParent;
+        UserInterfaceManager.DisTolerance -= SetDisTolerance;
+        UserInterfaceManager.MaxNeighDisParent -= SetMaxNeighDisParent;
+        UserInterfaceManager.MinNeighDisParent -= SetMinNeighDisParent;
+        UserInterfaceManager.NeighDisTolerance -= SetNeighDisTolerance;
+        UserInterfaceManager.MinForceEnable -= SetMinForceEnable;
     }
 
     void OnMouseDown()
     {
         SendComment(comment);
+    }
+
+    public void EnableForce()
+    {
+        apply_physics = true;
+        ApplyForce();
+        ApplyForceNeighbour();
+        ApplyOriginForce();
+    }
+
+    public void DisableForce()
+    {
+        apply_physics = false;
     }
 
     public void SetApplyByDepth(int _depth)
@@ -216,11 +249,11 @@ public class Node : MonoBehaviour {
         }
     }
 
-    public void CheckVelocity() {
+    public void CheckForceVelocity() {
         float distance = Vector3.Distance(Parent.transform.position, transform.position);
 
         //Check if Distance is in MaxDistance or velocity is decreasing
-        if (velocity_magnitude < min_velocity && distance < max_parent_distance - range_distance || velocity_magnitude < min_velocity && distance > max_parent_distance + range_distance)
+        if (velocity_magnitude < min_velocity && distance < max_parent_distance - distance_tolerance || velocity_magnitude < min_velocity && distance > max_parent_distance + distance_tolerance)
         {
             apply_force = false;
             //applyforceneighbour = true;
@@ -233,7 +266,7 @@ public class Node : MonoBehaviour {
         }
     }
 
-    public void CheckNeighbourDistance(){
+    public void CheckNeighbourForceDistance(){
         GetClosestNeighbour();
         float distance = Vector3.Distance(neighbour_position, transform.position);
 
@@ -249,7 +282,8 @@ public class Node : MonoBehaviour {
 
     }
 
-    public void CheckParentDistance() {
+    //Todo
+    public void CheckOriginForceDistance() {
         float distanceparent = Vector3.Distance(Parent.transform.position, transform.position);
         float distanceorigin = Vector3.Distance(Origin.transform.position, Parent.transform.position);
 
@@ -265,16 +299,16 @@ public class Node : MonoBehaviour {
 
     }
 
-    public void CalculateVelocity() {
+    public void CalculateForceVelocity() {
         parent_distance = Vector3.Distance(Parent.transform.position, transform.position);
         
-        if (parent_distance < max_parent_distance - range_distance)
+        if (parent_distance < max_parent_distance - distance_tolerance)
         {
             velocity = Parent.transform.position - transform.position;
             velocity = -velocity;
             check_force = true;
         }
-        else if(parent_distance > max_parent_distance + range_distance)
+        else if(parent_distance > max_parent_distance + distance_tolerance)
         {
             velocity = Parent.transform.position - transform.position;
 
@@ -289,7 +323,12 @@ public class Node : MonoBehaviour {
         velocity = velocity.normalized;
     }
 
-    public void CalculateSphereVelocity()
+    public void CalculateNeighbourForceVelocity()
+    {
+        GetClosestNeighbour();
+    }
+
+    public void CalculateOriginForceVelocity()
     {
         origin_distance = Vector3.Distance(Origin.transform.position, transform.position);
         float parentorigindistance = Vector3.Distance(Origin.transform.position, Parent.transform.position);
@@ -310,18 +349,11 @@ public class Node : MonoBehaviour {
         else
         {
             //velocity = new Vector3(0,0,0);
-            rigidbody.AddForce(-velocity_origin * force, ForceMode.Force);
+            rigidbody.AddForce(-velocity_origin * force_origin, ForceMode.Force);
             
         }
         velocity_origin = velocity_origin.normalized;
     }
-
-    public void CalculateNeighborVelocity()
-    {
-        GetClosestNeighbour();
-    }
-
-
 
     public void ApplyForce(float power = 1) {
         if (rigidbody == null)
@@ -331,14 +363,14 @@ public class Node : MonoBehaviour {
         rigidbody.AddForce(velocity * force, ForceMode.Force);
     }
 
-    public void ApplySphereForce(bool inverse = false) {
+    public void ApplyOriginForce(bool inverse = false) {
         if (!inverse)
         {
-            rigidbody.AddForce(velocity_origin * force_sphere, ForceMode.Force);
+            rigidbody.AddForce(velocity_origin * force_origin, ForceMode.Force);
         }
         else
         {
-            rigidbody.AddForce(-velocity_origin * force_sphere, ForceMode.Force);
+            rigidbody.AddForce(-velocity_origin * force_origin, ForceMode.Force);
         }
 
     }
@@ -350,7 +382,7 @@ public class Node : MonoBehaviour {
         {
             if (!float.IsNaN(neighbour_direction.x) && !float.IsNaN(neighbour_direction.y) && !float.IsNaN(neighbour_direction.z))
             {
-                rigidbody.AddForce(neighbour_direction * force_neighbor, ForceMode.Force);
+                rigidbody.AddForce(neighbour_direction * force_neighbour, ForceMode.Force);
             }
 
         }
@@ -373,12 +405,12 @@ public class Node : MonoBehaviour {
         neighbour_position = nodes[closest_neighbour].transform.position;
         if (closest_neighbour_distance > 0)
         {
-            if (closest_neighbour_distance < max_neighbour_distance - range_distance)
+            if (closest_neighbour_distance < max_neighbour_distance - distance_tolerance)
             {
                 neighbour_direction = -(nodes[closest_neighbour].transform.position - transform.position).normalized;
 
             }
-            else if (closest_neighbour_distance > max_neighbour_distance + range_distance)
+            else if (closest_neighbour_distance > max_neighbour_distance + distance_tolerance)
             {
                 //neighbourdirection = (ParentComments[closestneighbour].transform.position - transform.position);
             }
@@ -640,4 +672,116 @@ public class Node : MonoBehaviour {
         }
 
     }
+
+    public void SetForce(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            force = value;
+        }
+        else if (_depth == 0)
+        {
+            force = value;
+        }     
+    }
+    public void SetForceNeighbour(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            force_neighbour = value;
+        }
+        else if (_depth == 0)
+        {
+            force_neighbour = value;
+        }
+    }
+    public void SetForceOrigin(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            force_origin = value;
+        }
+        else if (_depth == 0)
+        {
+            force_origin = value;
+        }
+    }
+    public void SetMaxDisParent(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            max_parent_distance = value;
+        }
+        else if (_depth == 0)
+        {
+            max_parent_distance = value;
+        }
+    }
+    public void SetMinDisParent(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            min_parent_distance = value;
+        }
+        else if (_depth == 0)
+        {
+            min_parent_distance = value;
+        }
+    }
+    public void SetDisTolerance(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            distance_tolerance = value;
+        }
+        else if (_depth == 0)
+        {
+            distance_tolerance = value;
+        }
+    }
+    public void SetMaxNeighDisParent(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            max_neighbour_distance = value;
+        }
+        else if (_depth == 0)
+        {
+            max_neighbour_distance = value;
+        }
+    }
+    public void SetMinNeighDisParent(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            min_neighbour_distance = value;
+        }
+        else if (_depth == 0)
+        {
+            min_neighbour_distance = value;
+        }
+    }
+    public void SetNeighDisTolerance(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            neighbour_distance_tolerance = value;
+        }
+        else if (_depth == 0)
+        {
+            neighbour_distance_tolerance = value;
+        }
+    }
+    public void SetMinForceEnable(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            min_velocity = value;
+        }
+        else if (_depth == 0)
+        {
+            min_velocity = value;
+        }
+    }
+
 }

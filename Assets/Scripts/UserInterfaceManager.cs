@@ -6,6 +6,18 @@ using QuickType;
 
 public class UserInterfaceManager : MonoBehaviour {
 
+    public delegate void NodeSend(int depth, float value);
+    public static event NodeSend Force;
+    public static event NodeSend NeighbourForce;
+    public static event NodeSend GravityForce;
+    public static event NodeSend MaxDisParent;
+    public static event NodeSend MinDisParent;
+    public static event NodeSend DisTolerance;
+    public static event NodeSend MaxNeighDisParent;
+    public static event NodeSend MinNeighDisParent;
+    public static event NodeSend NeighDisTolerance;
+    public static event NodeSend MinForceEnable;
+
     //Controller
     public GameObject GraphManager;
 
@@ -18,6 +30,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public GameObject GraphMenu;
 
     //Graph Data Display
+    public Text depth;
     public Text force;
     public Text neighbour_force;
     public Text gravity_force;
@@ -27,7 +40,6 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text max_neighbour_distance;
     public Text min_neighbour_distance;
     public Text distance_tolerance_neighbour;
-    public Text max_velocity;
     public Text min_force_apply;
 
     //Submission Data
@@ -65,6 +77,15 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text transform_depth;
     public Text transform_max_scale;
 
+    //Prefabs
+    public GameObject prefab_submission;
+    public GameObject prefab_author;
+
+    public List<GameObject> author_list;
+    public int selected_author = 0;
+    public List<GameObject> submission_list;
+    public int selected_submission = 0;
+
 
 	// Use this for initialization
 	void Start () {
@@ -88,9 +109,90 @@ public class UserInterfaceManager : MonoBehaviour {
         Graph.SendSubmission -= SetSubmission;
     }
 
-    void GetMarkedVertices() {
+    void GetMarkedVertices()
+    {
 
     }
+
+    public void SendForce()
+    {
+        Force(int.Parse(depth.text), float.Parse(force.text));
+    }
+
+    public void SendNeighbourForceForce()
+    {
+        NeighbourForce(int.Parse(depth.text), float.Parse(neighbour_force.text));
+    }
+
+    public void SendGravityForce()
+    {
+        GravityForce(int.Parse(depth.text), float.Parse(gravity_force.text));
+    }
+
+    public void SendMaxDisParent()
+    {
+        MaxDisParent(int.Parse(depth.text), float.Parse(max_distance_parent.text));
+    }
+
+    public void SendMinDisParent()
+    {
+        MinDisParent(int.Parse(depth.text), float.Parse(min_distance_parent.text));
+    }
+
+    public void SendDisTolerance()
+    {
+        DisTolerance(int.Parse(depth.text), float.Parse(distance_tolerance.text));
+    }
+
+    public void SendMaxNeighDisParent()
+    {
+        MaxNeighDisParent(int.Parse(depth.text), float.Parse(max_neighbour_distance.text));
+    }
+
+    public void SendMinNeighDisParent()
+    {
+        MinNeighDisParent(int.Parse(depth.text), float.Parse(min_neighbour_distance.text));
+    }
+
+    public void SendNeighDisTolerance()
+    {
+        NeighDisTolerance(int.Parse(depth.text), float.Parse(distance_tolerance_neighbour.text));
+    }
+
+    public void SendMinForceEnable()
+    {
+        MinForceEnable(int.Parse(depth.text), float.Parse(min_force_apply.text));
+    }
+
+    //Todo
+    public void AddSubmissionToInterface()
+    {
+
+    }
+
+    //Todo
+    public void AddAuthorToInterface()
+    {
+
+    }
+
+    //Todo
+    public void SelectColor()
+    {
+
+    }
+
+    public void AddAuthor(string author)
+    {
+
+    }
+
+    public void AddSubmission(string submission)
+    {
+
+    }
+
+
 
     public void HighlightNodes()
     {
@@ -130,14 +232,14 @@ public class UserInterfaceManager : MonoBehaviour {
     {
         marked_comment = comment;
         comment_author.text = comment.Author;
-        //comment_id.text = comment.Id;
-        //comment_url.text = comment.Url;
-        //comment_content.text = comment.Content;
-        //comment_score.text = comment.Score.ToString();
-        //comment_likes.text = comment.Likes.ToString();
-        //comment_upvote.text = comment.Upvote.ToString();
-        //comment_downvote.text = comment.Downvote.ToString();
-       // comment_reply_count.text = comment.Comments.CommentArray.Length.ToString();
+        comment_id.text = comment.Id;
+        comment_url.text = comment.Url;
+        comment_content.text = comment.Content;
+        comment_score.text = comment.Score.ToString();
+        comment_likes.text = comment.Likes.ToString();
+        comment_upvote.text = comment.Upvote.ToString();
+        comment_downvote.text = comment.Downvote.ToString();
+        comment_reply_count.text = comment.Comments.CommentArray.Length.ToString();
     }
 
 

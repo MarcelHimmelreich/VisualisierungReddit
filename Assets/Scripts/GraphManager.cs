@@ -12,6 +12,8 @@ public class GraphManager : MonoBehaviour {
     public static event ForceGraph PrintData;
     public static event ForceGraph GetMaxDepth;
     public static event ForceGraph AddNodesToGraph;
+    public static event ForceGraph EnableForce;
+    public static event ForceGraph DisableForce;
 
     public delegate void GraphTransform(int depth, string attribute, float maxvalue);
     public static event GraphTransform SendTransform;
@@ -20,7 +22,7 @@ public class GraphManager : MonoBehaviour {
     public static event MeshSpawn Spawn;
 
     public delegate void MeshDestroy(int depth);
-    public static event MeshDestroy Destroy;
+    public static event MeshDestroy DestroyMesh;
 
     public delegate void Highlight(string author, Material highlight);
     public static event Highlight HighlightAuthor;
@@ -79,6 +81,16 @@ public class GraphManager : MonoBehaviour {
 
     }
 
+    public void ForceEnable()
+    {
+        EnableForce();
+    }
+
+    public void ForceDisable()
+    {
+        DisableForce();
+    }
+
     public void SendPrintData()
     {
         PrintData();
@@ -91,7 +103,7 @@ public class GraphManager : MonoBehaviour {
 
     public void SendDestroyMesh(int depth)
     {
-        Destroy(depth);
+        DestroyMesh(depth);
     }
 
     public void MaxDepth()
@@ -170,7 +182,13 @@ public class GraphManager : MonoBehaviour {
     //Todo
     public void DeleteGraph(int submission)
     {
-
+        //submission is in list
+        if (submission > Submission.Count || submission < 0)
+        {
+            GameObject submission_die = Submission[submission];
+            Submission.Remove(submission_die);
+            Destroy(submission_die.gameObject);
+        }
     }
 
 

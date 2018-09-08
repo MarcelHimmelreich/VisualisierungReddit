@@ -187,7 +187,6 @@ public class Graph : MonoBehaviour {
         }
     }
 
-
     //Set the parent of a node  to create a tree like structure in the game scene
     public void MakeParents() {
         foreach (GameObject comment in CommentNode) {
