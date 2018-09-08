@@ -5,20 +5,22 @@ using UnityEngine;
 public class ShaderManager : MonoBehaviour {
 
     //Send Events to Nodes in Graph
-    public delegate void MaterialEvent(int depth, string author, Material material);
+    public delegate void MaterialEvent(int depth, Material material);
     public static event MaterialEvent SendMaterial;
 
-    public delegate void ShaderEvent(int depth, string author, Shader shader);
-    public static event ShaderEvent SendShader;
+    public delegate void MaterialEventAuthor(int depth, string author, Material material);
+    public static event MaterialEventAuthor SendMaterialAuthor;
 
-    public delegate void ColorEvent(int depth, string author, Color color);
+    public delegate void ColorEvent(int depth, Color color);
     public static event ColorEvent SendColor;
+
+    public delegate void ColorEventAuthor(int depth, string author, Color color);
+    public static event ColorEventAuthor SendColorAuthor;
 
     public delegate void ColorGradientEvent(int depth, string attribute, Color startcolor, Color endcolor);
     public static event ColorGradientEvent SendColorGradient;
 
     public List<Material> Material;
-    public List<Shader> Shader;
     public List<Color> Colors;
 
     //Color Gradient
@@ -39,17 +41,22 @@ public class ShaderManager : MonoBehaviour {
 
     public void SendMaterialToNode(int depth, string author, int id)
     {
-        SendMaterial(depth,author,Material[id]);
+        SendMaterialAuthor(depth,author,Material[id]);
     }
 
-    public void SendShaderToNode(int depth, string author, int id)
+    public void SendMaterialToNode(int depth, int id)
     {
-        SendShader(depth,author, Shader[id]);
+        SendMaterial(depth, Material[id]);
     }
 
     public void SendColorToNode(int depth, string author, int id)
     {
-        SendColor(depth,author, Colors[id]);
+        SendColorAuthor(depth, author, Colors[id]);
+    }
+
+    public void SendColorToNode(int depth, int id)
+    {
+        SendColor(depth, Colors[id]);
     }
 
     public void SendColorGradientToNode()

@@ -42,8 +42,9 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text distance_tolerance_neighbour;
     public Text min_force_apply;
 
+    public List<Text> depth_count;
+
     //Submission Data
-    //Marked Submission
     public Submission marked_submission;
     public Text subreddit;
     public Text submission_author;
@@ -55,7 +56,6 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text submission_downvote;
 
     //Comment Data
-    //Marked Comment
     public Comment marked_comment;
     public Text comment_author;
     public Text comment_id;
@@ -72,6 +72,10 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text highlight_author;
     public Text highlight_material_id;
 
+    public Color color;
+    public Image color_image;
+    public int selected_material = 0;
+
 
     //Transformations
     public Text transform_depth;
@@ -81,10 +85,15 @@ public class UserInterfaceManager : MonoBehaviour {
     public GameObject prefab_submission;
     public GameObject prefab_author;
 
+    public GameObject author_content_scroll;
+    public GameObject submission_content_scroll;
+
     public List<GameObject> author_list;
     public int selected_author = 0;
     public List<GameObject> submission_list;
     public int selected_submission = 0;
+
+    public GameObject Sample_Node;
 
 
 	// Use this for initialization
@@ -114,93 +123,140 @@ public class UserInterfaceManager : MonoBehaviour {
 
     }
 
+    public void SelectAuthor(string author)
+    {
+        for (int i = 0; i < author_list.Count;++i)
+        {
+            if (author == author_list[i].GetComponent<NodeUI>().comment.Author)
+            {
+                selected_author = i;
+            }
+        }
+    }
+
     public void SendForce()
     {
         Force(int.Parse(depth.text), float.Parse(force.text));
     }
-
     public void SendNeighbourForceForce()
     {
         NeighbourForce(int.Parse(depth.text), float.Parse(neighbour_force.text));
     }
-
     public void SendGravityForce()
     {
         GravityForce(int.Parse(depth.text), float.Parse(gravity_force.text));
     }
-
     public void SendMaxDisParent()
     {
         MaxDisParent(int.Parse(depth.text), float.Parse(max_distance_parent.text));
     }
-
     public void SendMinDisParent()
     {
         MinDisParent(int.Parse(depth.text), float.Parse(min_distance_parent.text));
     }
-
     public void SendDisTolerance()
     {
         DisTolerance(int.Parse(depth.text), float.Parse(distance_tolerance.text));
     }
-
     public void SendMaxNeighDisParent()
     {
         MaxNeighDisParent(int.Parse(depth.text), float.Parse(max_neighbour_distance.text));
     }
-
     public void SendMinNeighDisParent()
     {
         MinNeighDisParent(int.Parse(depth.text), float.Parse(min_neighbour_distance.text));
     }
-
     public void SendNeighDisTolerance()
     {
         NeighDisTolerance(int.Parse(depth.text), float.Parse(distance_tolerance_neighbour.text));
     }
-
     public void SendMinForceEnable()
     {
         MinForceEnable(int.Parse(depth.text), float.Parse(min_force_apply.text));
     }
 
-    //Todo
-    public void AddSubmissionToInterface()
+    public void AddSubmissionToInterface(Submission submission)
     {
-
+        bool add_submission = true;
+        for (int i = 0; i < submission_list.Count; ++i)
+        {
+            if (submission.Title == submission_list[i].GetComponent<SubmissionUI>().submission.Title)
+            {
+                add_submission = false;
+            }
+        }
+        if (add_submission)
+        {
+            GameObject submission_ui = Instantiate(prefab_submission) as GameObject;
+            submission_ui.GetComponent<SubmissionUI>().submission = submission;
+            submission_ui.transform.parent = submission_content_scroll.transform;
+            submission_ui.transform.localScale = Vector3.one;
+            submission_list.Add(submission_ui);
+        }
     }
 
-    //Todo
-    public void AddAuthorToInterface()
+    public void AddAuthorToInterface(Comment comment)
     {
-
+        bool add_author = true;
+        for (int i = 0; i<author_list.Count;++i)
+        {
+            if (comment.Author == author_list[i].GetComponent<NodeUI>().comment.Author)
+            {
+                add_author = false;
+            }
+        }
+        if (add_author)
+        {
+            GameObject author_ui = Instantiate(prefab_author) as GameObject;
+            author_ui.GetComponent<NodeUI>().comment = comment;
+            author_ui.transform.parent = author_content_scroll.transform;
+            author_ui.transform.localScale = Vector3.one;
+            author_list.Add(author_ui);
+        }
     }
 
-    //Todo
-    public void SelectColor()
+    public void SetColorRed(float value)
     {
-
+        color.r = value/255;
+        Sample_Node.GetComponent<Renderer>().material.color = color;
+    }
+    public void SetColorGreen(float value)
+    {
+        color.g = value/255;
+        Sample_Node.GetComponent<Renderer>().material.color = color;
+    }
+    public void SetColorBlue(float value)
+    {
+        color.b = value/255;
+        Sample_Node.GetComponent<Renderer>().material.color = color;
+    }
+    public void SetColorAlpha(float value)
+    {
+        color.a = value/100;
+        Sample_Node.GetComponent<Renderer>().material.color = color;
     }
 
-    public void AddAuthor(string author)
+    public void SelectMaterial(int id)
     {
-
+        Sample_Node.GetComponent<Renderer>().material = ShaderManager.GetComponent<ShaderManager>().Material[id];
+        selected_material = id;
     }
 
-    public void AddSubmission(string submission)
-    {
-
-    }
-
-
-
-    public void HighlightNodes()
+    public void HighlightNodesByAuthor()
     {
         if (marked_comment != null)
         {
             ShaderManager.GetComponent<ShaderManager>().SendMaterialToNode(int.Parse(highlight_depth.text), comment_author.text, int.Parse(highlight_material_id.text));
         }
         
+    }
+
+    public void AllUpdateMaterial()
+    {
+        if (marked_comment != null)
+        {
+            ShaderManager.GetComponent<ShaderManager>().SendMaterialToNode(int.Parse(highlight_depth.text), int.Parse(highlight_material_id.text));
+        }
     }
 
     public void Loaded()

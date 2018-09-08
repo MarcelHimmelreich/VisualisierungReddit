@@ -125,7 +125,7 @@ public class Node : MonoBehaviour {
         GraphManager.PrintData += Print;
         GraphManager.SendTransform += SetTransformScale;
         GraphManager.Spawn += CreateMesh;
-        GraphManager.Destroy += DestroyMesh;
+        GraphManager.DestroyMesh += DestroyMesh;
         GraphManager.GetMaxDepth += SendDepthToGraph;
         GraphManager.AddNodesToGraph += AddToGraph;
         GraphManager.EnableForce +=EnableForce;
@@ -151,11 +151,12 @@ public class Node : MonoBehaviour {
         GraphManager.PrintData -= Print;
         GraphManager.SendTransform -= SetTransformScale;
         GraphManager.Spawn -= CreateMesh;
-        GraphManager.Destroy -= DestroyMesh;
+        GraphManager.DestroyMesh -= DestroyMesh;
         GraphManager.GetMaxDepth -= SendDepthToGraph;
         GraphManager.AddNodesToGraph -= AddToGraph;
         GraphManager.EnableForce -= EnableForce;
         GraphManager.DisableForce -= DisableForce;
+        ShaderManager.SendMaterialAuthor -= SetMaterial;
         ShaderManager.SendMaterial -= SetMaterial;
         UserInterfaceManager.Force -= SetForce;
         UserInterfaceManager.NeighbourForce -= SetForceNeighbour;
@@ -638,6 +639,46 @@ public class Node : MonoBehaviour {
             {
                 NodeMesh.GetComponent<Renderer>().material = material;
             }
+        }
+    }
+    public void SetMaterial(int _depth, Material material)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            NodeMesh.GetComponent<Renderer>().material = material;
+        }
+        else if (_depth == 0)
+        {
+            NodeMesh.GetComponent<Renderer>().material = material;
+        }
+    }
+
+    public void SetColor(int _depth, string author, Color color)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            if (author == comment.Author)
+            {
+                NodeMesh.GetComponent<Renderer>().material.color = color;
+            }
+        }
+        else if (_depth == 0)
+        {
+            if (author == comment.Author)
+            {
+                NodeMesh.GetComponent<Renderer>().material.color = color;
+            }
+        }
+    }
+    public void SetColor(int _depth, Color color)
+    {
+        if (depth == _depth && _depth > 0)
+        {
+            NodeMesh.GetComponent<Renderer>().material.color = color;
+        }
+        else if (_depth == 0)
+        {
+            NodeMesh.GetComponent<Renderer>().material.color = color;
         }
     }
 

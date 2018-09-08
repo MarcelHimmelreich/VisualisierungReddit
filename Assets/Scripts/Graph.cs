@@ -38,7 +38,6 @@ public class Graph : MonoBehaviour {
     void Start() {
         depth_counter_done.Add(0);
         NodesPerDepth.Add(new List<GameObject>());
-
     }
 
     // Update is called once per frame

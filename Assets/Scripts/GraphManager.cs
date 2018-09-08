@@ -179,7 +179,6 @@ public class GraphManager : MonoBehaviour {
 
     }
 
-    //Todo
     public void DeleteGraph(int submission)
     {
         //submission is in list
