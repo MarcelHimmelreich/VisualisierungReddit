@@ -66,6 +66,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text comment_upvote;
     public Text comment_downvote;
     public Text comment_reply_count;
+    public Text comment_orbit;
 
     //Highlight
     public Text highlight_depth;

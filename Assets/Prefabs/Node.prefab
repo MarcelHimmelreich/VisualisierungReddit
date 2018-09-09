@@ -23,7 +23,6 @@ GameObject:
   - component: {fileID: 54094890495327332}
   - component: {fileID: 120509257089336296}
   - component: {fileID: 135379069100538932}
-  - component: {fileID: 135255316915770838}
   m_Layer: 0
   m_Name: Node
   m_TagString: Untagged
@@ -85,17 +84,17 @@ MonoBehaviour:
   velocity_neighbor: []
   neighbour_distance: []
   force: 25
-  force_neighbor: 5
-  force_sphere: 30
+  force_neighbour: 5
+  force_origin: 30
   max_velocity: 5
   min_velocity: 0.1
   velocity_magnitude: 0
-  max_parent_distance: 10
-  min_parent_distance: 10
-  range_distance: 1
+  max_parent_distance: 50
+  min_parent_distance: 45
+  distance_tolerance: 1
   max_neighbour_distance: 5
   min_neighbour_distance: 3
-  neighbour_range_distance: 1
+  neighbour_distance_tolerance: 1
   parent_distance: 0
   origin_distance: 0
   apply_physics: 1
@@ -215,18 +214,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!135 &135255316915770838
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1449240876399500}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!135 &135379069100538932
 SphereCollider:
   m_ObjectHideFlags: 1
