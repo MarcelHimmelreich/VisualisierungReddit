@@ -49,9 +49,9 @@ public class ShaderManager : MonoBehaviour {
         SendMaterial(depth, Material[id]);
     }
 
-    public void SendColorToNode(int depth, string author, int id)
+    public void SendColorToNode(int depth, string author, Color color)
     {
-        SendColorAuthor(depth, author, Colors[id]);
+        SendColorAuthor(depth, author, color);
     }
 
     public void SendColorToNode(int depth, int id)

@@ -6,13 +6,29 @@ using QuickType;
 
 public class SubmissionUI : MonoBehaviour {
 
+    public delegate void InterfaceSubmission(string id);
+    public static event InterfaceSubmission SelectSubmission;
+
     public Submission submission;
     public Image background;
     public Text title;
+    public Text author;
+    public Text replies;
 
     public SubmissionUI(Submission _submission)
     {
-        submission = _submission;
+        submission = _submission;     
+    }
+
+    public void SetText()
+    {
+        title.text = submission.Title;
+        author.text = submission.Author;
+    }
+
+    public void SelectSub()
+    {
+        SelectSubmission(submission.Id);
     }
 
 	// Use this for initialization

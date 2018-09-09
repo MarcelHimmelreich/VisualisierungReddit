@@ -14,6 +14,8 @@ public class Node : MonoBehaviour {
 
     public delegate void InterfaceSender(Comment comment);
     public static event InterfaceSender SendComment;
+    public static event InterfaceSender AddComment;
+    public static event InterfaceSender AuthorNode;
 
     //Reddit Comment Data Structure
     public Comment comment;
@@ -128,9 +130,11 @@ public class Node : MonoBehaviour {
         GraphManager.DestroyMesh += DestroyMesh;
         GraphManager.GetMaxDepth += SendDepthToGraph;
         GraphManager.AddNodesToGraph += AddToGraph;
-        GraphManager.EnableForce +=EnableForce;
+        GraphManager.EnableForce += EnableForce;
         GraphManager.DisableForce += DisableForce;
+        GraphManager.PushNode += PushForce;
         ShaderManager.SendMaterial += SetMaterial;
+        ShaderManager.SendColorAuthor +=SetColor;
         UserInterfaceManager.Force += SetForce;
         UserInterfaceManager.NeighbourForce += SetForceNeighbour;
         UserInterfaceManager.GravityForce += SetForceOrigin;
@@ -141,6 +145,10 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.MinNeighDisParent += SetMinNeighDisParent;
         UserInterfaceManager.NeighDisTolerance += SetNeighDisTolerance;
         UserInterfaceManager.MinForceEnable += SetMinForceEnable;
+        UserInterfaceManager.AddComment += SendAddComment;
+        UserInterfaceManager.MaxScale += SetMaxScale;
+        UserInterfaceManager.DisableScale += ResetScale;
+        UserInterfaceManager.CreateNode += SendNode;
     }
 
     void OnDisable()
@@ -156,8 +164,10 @@ public class Node : MonoBehaviour {
         GraphManager.AddNodesToGraph -= AddToGraph;
         GraphManager.EnableForce -= EnableForce;
         GraphManager.DisableForce -= DisableForce;
+        GraphManager.PushNode -= PushForce;
         ShaderManager.SendMaterialAuthor -= SetMaterial;
         ShaderManager.SendMaterial -= SetMaterial;
+        ShaderManager.SendColorAuthor -= SetColor;
         UserInterfaceManager.Force -= SetForce;
         UserInterfaceManager.NeighbourForce -= SetForceNeighbour;
         UserInterfaceManager.GravityForce -= SetForceOrigin;
@@ -168,6 +178,10 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.MinNeighDisParent -= SetMinNeighDisParent;
         UserInterfaceManager.NeighDisTolerance -= SetNeighDisTolerance;
         UserInterfaceManager.MinForceEnable -= SetMinForceEnable;
+        UserInterfaceManager.AddComment -= SendAddComment;
+        UserInterfaceManager.MaxScale -= SetMaxScale;
+        UserInterfaceManager.DisableScale -= ResetScale;
+        UserInterfaceManager.CreateNode -= SendNode;
     }
 
     void OnMouseDown()
@@ -186,6 +200,16 @@ public class Node : MonoBehaviour {
     public void DisableForce()
     {
         apply_physics = false;
+    }
+
+    public void PushForce()
+    {
+        CalculateForceVelocity();
+        ApplyForce(3);
+        CalculateNeighbourForceVelocity();
+        ApplyForceNeighbour();
+        CalculateOriginForceVelocity();
+        ApplyOriginForce();
     }
 
     public void SetApplyByDepth(int _depth)
@@ -361,7 +385,7 @@ public class Node : MonoBehaviour {
         {
             rigidbody = GetComponent<Rigidbody>();
         }
-        rigidbody.AddForce(velocity * force, ForceMode.Force);
+        rigidbody.AddForce(velocity * force * power, ForceMode.Force);
     }
 
     public void ApplyOriginForce(bool inverse = false) {
@@ -426,6 +450,19 @@ public class Node : MonoBehaviour {
     public void sendVerticesDepthCount() {
         Debug.Log("Send Depth" + depth);
         //SendDepth(depth);
+    }
+
+    public void SendAddComment()
+    {
+        AddComment(comment);
+    }
+
+    public void SendNode(int _depth, string _author)
+    {
+        if ((depth == _depth  && comment.Author == _author) || (_depth == 0 && comment.Author == _author))
+        {
+            AuthorNode(comment);
+        }
     }
 
     //rekursiv function
@@ -531,6 +568,17 @@ public class Node : MonoBehaviour {
             }
         }
     }
+    public void ResetScale(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            NodeMesh.transform.localScale = new Vector3(value, value, value);
+        }
+        else if (_depth == 0)
+        {
+            NodeMesh.transform.localScale = new Vector3(value, value, value);
+        }
+    }
 
     public float GetAttributeValue(string attribute)
     {
@@ -631,6 +679,7 @@ public class Node : MonoBehaviour {
             if (author == comment.Author)
             {
                 NodeMesh.GetComponent<Renderer>().material = material;
+                AuthorNode(comment);
             }
         }
         else if (_depth == 0)
@@ -638,6 +687,7 @@ public class Node : MonoBehaviour {
             if (author == comment.Author)
             {
                 NodeMesh.GetComponent<Renderer>().material = material;
+                AuthorNode(comment);
             }
         }
     }
@@ -822,6 +872,17 @@ public class Node : MonoBehaviour {
         else if (_depth == 0)
         {
             min_velocity = value;
+        }
+    }
+    public void SetMaxScale(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            maxscale = value;
+        }
+        else if (_depth == 0)
+        {
+            maxscale = value;
         }
     }
 

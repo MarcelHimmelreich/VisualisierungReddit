@@ -14,6 +14,7 @@ public class GraphManager : MonoBehaviour {
     public static event ForceGraph AddNodesToGraph;
     public static event ForceGraph EnableForce;
     public static event ForceGraph DisableForce;
+    public static event ForceGraph PushNode;
 
     public delegate void GraphTransform(int depth, string attribute, float maxvalue);
     public static event GraphTransform SendTransform;
@@ -91,6 +92,11 @@ public class GraphManager : MonoBehaviour {
         DisableForce();
     }
 
+    public void PushNodes()
+    {
+        PushNode();
+    }
+
     public void SendPrintData()
     {
         PrintData();
@@ -117,7 +123,7 @@ public class GraphManager : MonoBehaviour {
     }
 
 
-    public void SendTransformToNodes(int submission)
+    public void SendTransformToNodes(int depth, int submission)
     {
         float maxvalue = 0;
         if (Submission.Count > 1)
@@ -129,7 +135,7 @@ public class GraphManager : MonoBehaviour {
             maxvalue = Submission[0].GetComponent<Graph>().GetMaxValue(attribute_transform);
         }
         Debug.Log("Max Value: "  + maxvalue);
-        SendTransform(transform_depth, attribute_transform, maxvalue);
+        SendTransform(depth, attribute_transform, maxvalue);
     }
 
     public void MakeParents() {
@@ -138,8 +144,13 @@ public class GraphManager : MonoBehaviour {
         }
     }
 
+
     //Create a single graph by id in a array or all submissions
     public void CreateGraph(int value = -1) {
+        if (Submission.Count == 1)
+        {
+            DeleteGraph(0);
+        }
         Debug.Log("Creating Force Graph...");
         createdGraph = value;
         if (value >= 0)
@@ -168,6 +179,8 @@ public class GraphManager : MonoBehaviour {
         CreateParentComments();
         MaxDepth();
         CreateNodesList();
+        SendSpawn(0);
+        UserInterface.GetComponent<UserInterfaceManager>().InitializeGraph();
         foreach (GameObject submission in Submission)
         {
             

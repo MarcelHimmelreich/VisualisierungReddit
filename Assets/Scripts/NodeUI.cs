@@ -6,18 +6,47 @@ using QuickType;
 
 public class NodeUI : MonoBehaviour {
 
+    public delegate void InterfaceNode(string author);
+    public static event InterfaceNode SelectAuthor;
+
     public Comment comment;
     public Image background;
+    public Text upvote;
+    public Text downvote;
     public Text author;
+    public Text replies;
 
     public NodeUI(Comment _comment)
     {
         comment = _comment;
     }
 
-	// Use this for initialization
-	void Start ()
+    public void SetText()
     {
+        upvote.text = comment.Upvote.ToString();
+        author.text = comment.Author;
+        downvote.text = comment.Downvote.ToString();
+        if (comment.Comments.CommentArray != null)
+        {
+            replies.text = comment.Comments.CommentArray.Length.ToString();
+        }
+        else
+        {
+            replies.text = "0";
+        }
+
+    }
+
+    public void SelectNode()
+    {
+        //Zoom to Node
+
+        //Select Author
+        SelectAuthor(comment.Author);
+    }
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
