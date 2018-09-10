@@ -119,6 +119,7 @@ public class Node : MonoBehaviour {
 
             //CheckVelocityDirection();
             //CheckPositionComplete();
+            bounce_radius.radius = max_neighbour_distance;
         }
         if (draw_line) {
             SetLine();
@@ -210,7 +211,7 @@ public class Node : MonoBehaviour {
     {
         while (countdownValue > 0)
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(1.0f*depth);
             countdownValue--;
         }
         if (bounce_radius != null)
@@ -410,13 +411,14 @@ public class Node : MonoBehaviour {
         float parentorigindistance = Vector3.Distance(Origin.transform.position, Parent.transform.position);
         if (origin_distance < max_parent_distance * depth)
         {
-            velocity_origin = Origin.transform.position - transform.position;
+            
+            velocity_origin = Origin.transform.position - Parent.transform.position;
             velocity_origin = -velocity_origin;
 
         }
         else if (origin_distance > max_parent_distance * depth + max_parent_distance)
         {
-            velocity_origin = Origin.transform.position - transform.position;
+            velocity_origin = Origin.transform.position - Parent.transform.position;
             //rigidbody.AddRelativeForce(velocity_origin * force/2, ForceMode.Force);
 
 
@@ -918,10 +920,14 @@ public class Node : MonoBehaviour {
         if (depth == _depth)
         {
             max_neighbour_distance = value;
+            bounce_radius.enabled = false;
+            StartCoroutine(StartCountdown(1));
         }
         else if (_depth == 0)
         {
             max_neighbour_distance = value;
+            bounce_radius.enabled = false;
+            StartCoroutine(StartCountdown(1));
         }
     }
     public void SetMinNeighDisParent(int _depth, float value)

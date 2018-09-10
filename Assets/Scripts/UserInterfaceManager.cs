@@ -314,6 +314,7 @@ public class UserInterfaceManager : MonoBehaviour {
     {
         text_force.text = value;
         force = float.Parse(value);
+        SendForce();
     }
     public void SetForceNeighbour(string value)
     {
@@ -324,21 +325,25 @@ public class UserInterfaceManager : MonoBehaviour {
     {
         text_gravity_force.text = value;
         gravity_force = float.Parse(value);
+        SendGravityForce();
     }
     public void SetMaxDisParent(string value)
     {
         text_max_distance_parent.text = value;
         max_distance_parent = float.Parse(value);
+        SendMaxDisParent();
     }
     public void SetMaxNeighbourParent(string value)
     {
         text_max_neighbour_distance.text = value;
         max_neighbour_distance = float.Parse(value);
+        SendMaxNeighDisParent();
     }
     public void SetMinForceEnable(string value)
     {
         text_min_force_apply.text = value;
         min_force_apply = float.Parse(value);
+        SendMinForceEnable();
     }
 
     public void SetSizeDepth(string value)
@@ -505,15 +510,24 @@ public class UserInterfaceManager : MonoBehaviour {
         if (add_author_node)
         {
             GameObject node_ui = Instantiate(prefab_node) as GameObject;
+            node_list.Add(node_ui);
             node_ui.GetComponent<NodeUI>().comment = comment;
             node_ui.transform.parent = node_content_scroll.transform;
             node_ui.transform.localScale = Vector3.one;
             node_ui.GetComponent<RectTransform>().localPosition = new Vector3(node_ui.GetComponent<RectTransform>().localPosition.x,
                node_ui.GetComponent<RectTransform>().localPosition.y,
                0);
-            node_ui.GetComponent<RectTransform>().localRotation = new Quaternion(0,0,0,0);
             node_ui.GetComponent<NodeUI>().SetText();
-            node_list.Add(node_ui);
+
+        }
+        SetNodeParent();
+    }
+
+    public void SetNodeParent()
+    {
+        foreach (GameObject node in node_list)
+        {
+            node.transform.SetParent(node_content_scroll.transform);
         }
     }
 

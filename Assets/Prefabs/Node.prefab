@@ -86,15 +86,15 @@ MonoBehaviour:
   neighbour_distance: []
   force: 25
   force_neighbour: 5
-  force_origin: 60
+  force_origin: 5
   max_velocity: 5
   min_velocity: 0.1
   velocity_magnitude: 0
   max_parent_distance: 20
   min_parent_distance: 20
   distance_tolerance: 0
-  max_neighbour_distance: 5
-  min_neighbour_distance: 3
+  max_neighbour_distance: 2
+  min_neighbour_distance: 2
   neighbour_distance_tolerance: 0
   parent_distance: 0
   origin_distance: 0
@@ -240,5 +240,5 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 3
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}

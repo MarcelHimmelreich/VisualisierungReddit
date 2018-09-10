@@ -37,8 +37,8 @@ GameObject:
   m_Component:
   - component: {fileID: 224207685391932090}
   - component: {fileID: 222461576100013088}
-  - component: {fileID: 114100508638953888}
   - component: {fileID: 114302759966389718}
+  - component: {fileID: 114100508638953888}
   m_Layer: 5
   m_Name: SampleAuthor
   m_TagString: Untagged
