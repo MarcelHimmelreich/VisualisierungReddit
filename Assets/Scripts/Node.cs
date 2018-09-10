@@ -18,6 +18,8 @@ public class Node : MonoBehaviour {
     public static event InterfaceSender AddComment;
     public static event InterfaceSender AuthorNode;
 
+    public GameObject camera;
+
     //Reddit Comment Data Structure
     public Comment comment;
     public List<GameObject> CommentNode;
@@ -95,6 +97,7 @@ public class Node : MonoBehaviour {
     void Start() {
         rigidbody = GetComponent<Rigidbody>();
         mat = this.GetComponent<Material>();
+        camera = GameObject.Find("CameraObject");
         StartCoroutine(StartCountdown(3));
 
     }
@@ -207,6 +210,7 @@ public class Node : MonoBehaviour {
     {
         SendComment(comment);
         SendOrbit(depth);
+        camera.GetComponent<FPSController>().target = this.gameObject;
     }
 
     public IEnumerator StartCountdown(float countdownValue)

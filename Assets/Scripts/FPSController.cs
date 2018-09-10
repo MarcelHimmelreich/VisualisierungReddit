@@ -10,6 +10,9 @@ public class FPSController : MonoBehaviour {
     public bool invertXAxis = true;
     public bool invertYAxis = false;
 
+    public float rotatespeed = 5;
+    public GameObject target;
+
     CharacterController player;
 
     public bool CameraDisabled = false;
@@ -34,7 +37,7 @@ public class FPSController : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
         if (Input.GetKeyDown(KeyCode.F)) {
             CameraDisabled = !CameraDisabled;
@@ -43,9 +46,10 @@ public class FPSController : MonoBehaviour {
             {
 
                 //transform.localPosition = new Vector3(0f, 0f, 0f);
-                transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-                eyes.transform.localPosition = new Vector3(0f, 0f, 0f);
-                eyes.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                //transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                //eyes.transform.localPosition = new Vector3(0f, 0f, 0f);
+                //eyes.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                transform.RotateAround(target.transform.position, Vector3.up, rotatespeed * Time.deltaTime);
             }
         }
             
@@ -83,4 +87,5 @@ public class FPSController : MonoBehaviour {
             player.Move(movement * Time.deltaTime);
         }
     }
+
 }
