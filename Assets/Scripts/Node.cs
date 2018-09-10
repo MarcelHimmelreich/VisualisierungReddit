@@ -11,6 +11,7 @@ public class Node : MonoBehaviour {
 
     public delegate void NodeDepthSender(int depth);
     public static event NodeDepthSender SendDepth;
+    public static event NodeDepthSender SendOrbit;
 
     public delegate void InterfaceSender(Comment comment);
     public static event InterfaceSender SendComment;
@@ -78,9 +79,13 @@ public class Node : MonoBehaviour {
     public GameObject Node_prefab;
 
     public int counter = 0;
+    public bool highlight_author = false;
 
     //Vertex Mesh
     public GameObject NodeMesh;
+    public bool highlight_bool = false;
+
+    public SphereCollider bounce_radius;
 
     //Dimension Change
     public bool marked = false;
@@ -90,6 +95,7 @@ public class Node : MonoBehaviour {
     void Start() {
         rigidbody = GetComponent<Rigidbody>();
         mat = this.GetComponent<Material>();
+        StartCoroutine(StartCountdown(3));
 
     }
 
@@ -103,15 +109,15 @@ public class Node : MonoBehaviour {
             ApplyForce();
             CheckForceVelocity();
 
-            CalculateNeighbourForceVelocity();
-            ApplyForceNeighbour();
-            CheckNeighbourForceDistance();
+            //CalculateNeighbourForceVelocity();
+            //ApplyForceNeighbour();
+            //CheckNeighbourForceDistance();
 
             CalculateOriginForceVelocity();
             ApplyOriginForce();
             CheckOriginForceDistance();
 
-            CheckVelocityDirection();
+            //CheckVelocityDirection();
             //CheckPositionComplete();
         }
         if (draw_line) {
@@ -134,7 +140,8 @@ public class Node : MonoBehaviour {
         GraphManager.DisableForce += DisableForce;
         GraphManager.PushNode += PushForce;
         ShaderManager.SendMaterial += SetMaterial;
-        ShaderManager.SendColorAuthor +=SetColor;
+        ShaderManager.SendColorAuthor +=SetColorAuthor;
+        ShaderManager.SendColorShader += SetColorShader;
         UserInterfaceManager.Force += SetForce;
         UserInterfaceManager.NeighbourForce += SetForceNeighbour;
         UserInterfaceManager.GravityForce += SetForceOrigin;
@@ -149,6 +156,10 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.MaxScale += SetMaxScale;
         UserInterfaceManager.DisableScale += ResetScale;
         UserInterfaceManager.CreateNode += SendNode;
+        UserInterfaceManager.HighlightBool += SetHighlight;
+        UserInterfaceManager.EnableEdge += EnableEdge;
+        UserInterfaceManager.DisableEdge += DisableEdge;
+        UserInterfaceManager.SetEdgeColor += SetLineColour;
     }
 
     void OnDisable()
@@ -167,7 +178,8 @@ public class Node : MonoBehaviour {
         GraphManager.PushNode -= PushForce;
         ShaderManager.SendMaterialAuthor -= SetMaterial;
         ShaderManager.SendMaterial -= SetMaterial;
-        ShaderManager.SendColorAuthor -= SetColor;
+        ShaderManager.SendColorAuthor -= SetColorAuthor;
+        ShaderManager.SendColorShader -= SetColorShader;
         UserInterfaceManager.Force -= SetForce;
         UserInterfaceManager.NeighbourForce -= SetForceNeighbour;
         UserInterfaceManager.GravityForce -= SetForceOrigin;
@@ -182,11 +194,29 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.MaxScale -= SetMaxScale;
         UserInterfaceManager.DisableScale -= ResetScale;
         UserInterfaceManager.CreateNode -= SendNode;
+        UserInterfaceManager.HighlightBool -= SetHighlight;
+        UserInterfaceManager.EnableEdge -= EnableEdge;
+        UserInterfaceManager.DisableEdge -= DisableEdge;
+        UserInterfaceManager.SetEdgeColor -= SetLineColour;
     }
 
     void OnMouseDown()
     {
         SendComment(comment);
+        SendOrbit(depth);
+    }
+
+    public IEnumerator StartCountdown(float countdownValue)
+    {
+        while (countdownValue > 0)
+        {
+            yield return new WaitForSeconds(1.0f);
+            countdownValue--;
+        }
+        if (bounce_radius != null)
+        {
+            bounce_radius.enabled = true;
+        }
     }
 
     public void EnableForce()
@@ -232,6 +262,27 @@ public class Node : MonoBehaviour {
         LineRenderer lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.SetPosition(0,transform.position);
         lineRenderer.SetPosition(1,Parent.transform.position);
+    }
+
+    public void SetHighlight(int _depth, string author)
+    {
+        if (_depth == depth ||  _depth == 0)
+        {
+            if (comment.Author.Equals(author) || author.Equals("DEFAULT_ALL"))
+            {
+                if (highlight_bool)
+                {
+                    highlight_bool = false;
+                }
+                else
+                {
+                    highlight_bool = true;
+                }
+            }
+
+        }
+
+
     }
 
     public void SetColliderRadius(float radius) {
@@ -636,21 +687,35 @@ public class Node : MonoBehaviour {
 
     }
 
-    public void SetLineColour(int _depth, string author, Color startcolor, Color endcolor)
+    public void SetLineColour(int _depth, Color startcolor)
     {
         if (depth == _depth && _depth > 0)
         {
-            if (author == comment.Author)
-            {
-                GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
-            }
+                GetComponent<LineRenderer>().SetColors(startcolor, startcolor);
         }
         else if (_depth == 0)
         {
-            if (author == comment.Author)
-            {
-                GetComponent<LineRenderer>().SetColors(startcolor, endcolor);
-            }
+                GetComponent<LineRenderer>().SetColors(startcolor, startcolor);
+        }
+    }
+    public void EnableEdge(int _depth)
+    {
+        if (depth == _depth || _depth == 0)
+        {
+            draw_line = true;
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, Parent.transform.position);
+        }
+    }
+    public void DisableEdge(int _depth)
+    {
+        if (depth == _depth || _depth == 0)
+        {
+            draw_line = false;
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, transform.position);
         }
     }
 
@@ -678,7 +743,9 @@ public class Node : MonoBehaviour {
         {
             if (author == comment.Author)
             {
+                Color temp_color = NodeMesh.GetComponent<Renderer>().material.color;
                 NodeMesh.GetComponent<Renderer>().material = material;
+                NodeMesh.GetComponent<Renderer>().material.color = temp_color;
                 AuthorNode(comment);
             }
         }
@@ -686,7 +753,9 @@ public class Node : MonoBehaviour {
         {
             if (author == comment.Author)
             {
+                Color temp_color = NodeMesh.GetComponent<Renderer>().material.color;
                 NodeMesh.GetComponent<Renderer>().material = material;
+                NodeMesh.GetComponent<Renderer>().material.color = temp_color;
                 AuthorNode(comment);
             }
         }
@@ -703,7 +772,7 @@ public class Node : MonoBehaviour {
         }
     }
 
-    public void SetColor(int _depth, string author, Color color)
+    public void SetColorAuthor(int _depth, string author, Color color)
     {
         if (depth == _depth && _depth > 0)
         {
@@ -718,6 +787,20 @@ public class Node : MonoBehaviour {
             {
                 NodeMesh.GetComponent<Renderer>().material.color = color;
             }
+        }
+    }
+    public void SetColorShader(int _depth, Color color)
+    {
+        Debug.Log("Set Color UnHighlight");
+        if (depth == _depth && _depth > 0 && !highlight_bool)
+        {
+            Debug.Log("Set Color UnHighlight");
+            NodeMesh.GetComponent<Renderer>().material.color = color;
+        }
+        else if (_depth == 0 && !highlight_bool)
+        {
+            Debug.Log("Set Color UnHighlight All");
+            NodeMesh.GetComponent<Renderer>().material.color = color;
         }
     }
     public void SetColor(int _depth, Color color)

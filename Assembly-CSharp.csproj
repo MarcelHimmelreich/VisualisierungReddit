@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CameraMovement.cs" />
      <Compile Include="Assets\Scripts\AuthorUI.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Edge.cs" />
@@ -62,12 +63,19 @@
      <Compile Include="Assets\Scripts\Model.cs" />
      <Compile Include="Assets\Scripts\Node.cs" />
      <Compile Include="Assets\Scripts\NodeUI.cs" />
+     <Compile Include="Assets\Scripts\Orbit.cs" />
      <Compile Include="Assets\Scripts\Quicktype.cs" />
      <Compile Include="Assets\Scripts\ShaderManager.cs" />
      <Compile Include="Assets\Scripts\SubmissionUI.cs" />
      <Compile Include="Assets\Scripts\UserInterfaceManager.cs" />
      <None Include="Assets\Aufgaben.txt" />
+     <None Include="Assets\UCLAGameLab\Wireframe\Shaders\UCLA GameLab Wireframe Functions.cginc" />
+     <None Include="Assets\UCLAGameLab\Wireframe\Shaders\UCLA GameLab Wireframe.shader" />
      <None Include="Assets\JsonDotNet\link.xml" />
+     <None Include="Assets\UCLAGameLab\Wireframe\Shaders\UCLA GameLab Cutout Wireframe.shader" />
+     <None Include="Assets\UCLAGameLab\Wireframe\Shaders\UCLA GameLab Double-Sided Wireframe.shader" />
+     <None Include="Assets\UCLAGameLab\Wireframe\Shaders\UCLA GameLab Double-Sided Cutout Wireframe.shader" />
+     <None Include="Assets\Gem\Shaders\Gem.shader" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>C:/Users/Marcel Himmelreich/Documents/Visualisierung/VisualisierungReddit/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>

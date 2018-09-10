@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using QuickType;
 
 public class GraphManager : MonoBehaviour {
@@ -42,9 +43,6 @@ public class GraphManager : MonoBehaviour {
     public List<GameObject> Submission;
     public int createdGraph = 0;
 
-
-
-    // 
     public GameObject submission_prefab;
 
     //Mesh Objects
@@ -53,6 +51,7 @@ public class GraphManager : MonoBehaviour {
     //Dimension Variables
 
     public string attribute_transform = "upvote";
+    public Text attribute_transform_text;
     public string attribute_color = "upvote";
 
     public int transform_depth = 0;
@@ -66,19 +65,6 @@ public class GraphManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
-    }
-    public void SetDepthCounter() {
-
-    }
-
-    public void SendMaxDistance(int depth, float maxdistance)
-    {
-
-    }
-
-    public void ApplyForceToNodes()
-    {
 
     }
 
@@ -137,6 +123,11 @@ public class GraphManager : MonoBehaviour {
         Debug.Log("Max Value: "  + maxvalue);
         SendTransform(depth, attribute_transform, maxvalue);
     }
+    public void SetTransformAttribute(string value)
+    {
+        attribute_transform_text.text = value;
+        attribute_transform = value;
+    }
 
     public void MakeParents() {
         foreach (GameObject submission in Submission) {
@@ -179,7 +170,7 @@ public class GraphManager : MonoBehaviour {
         CreateParentComments();
         MaxDepth();
         CreateNodesList();
-        SendSpawn(0);
+        //SendSpawn(0);
         UserInterface.GetComponent<UserInterfaceManager>().InitializeGraph();
         foreach (GameObject submission in Submission)
         {
@@ -195,7 +186,7 @@ public class GraphManager : MonoBehaviour {
     public void DeleteGraph(int submission)
     {
         //submission is in list
-        if (submission > Submission.Count || submission < 0)
+        if (submission < Submission.Count && submission >= 0)
         {
             GameObject submission_die = Submission[submission];
             Submission.Remove(submission_die);

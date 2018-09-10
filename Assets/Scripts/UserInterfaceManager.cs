@@ -25,6 +25,20 @@ public class UserInterfaceManager : MonoBehaviour {
 
     public delegate void NodeCreation(int depth, string author);
     public static event NodeCreation CreateNode;
+    public static event NodeCreation HighlightBool;
+
+    public delegate void EdgeDraw(int depth);
+    public static event EdgeDraw EnableEdge;
+    public static event EdgeDraw DisableEdge;
+
+    public delegate void EdgeColor(int depth, Color color);
+    public static event EdgeColor SetEdgeColor;
+
+    public delegate void Orbit(int depth);
+    public static event Orbit DeleteOrbit;
+
+    public delegate void OrbitColor(int depth, Color color, float maxdistance);
+    public static event OrbitColor CreateOrbit;
 
     //Controller
     public GameObject GraphManager;
@@ -50,21 +64,22 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text text_distance_tolerance_neighbour;
     public Text text_min_force_apply;
 
-    public int depth { get; set; }
-    public float force { get; set; }
-    public float neighbour_force { get; set; }
-    public float gravity_force { get; set; }
-    public float max_distance_parent { get; set; }
-    public float min_distance_parent { get; set; }
-    public float distance_tolerance { get; set; }
-    public float max_neighbour_distance { get; set; }
-    public float min_neighbour_distance { get; set; }
-    public float distance_tolerance_neighbour { get; set; }
-    public float min_force_apply { get; set; }
+    public int depth;
+    public float force;
+    public float neighbour_force;
+    public float gravity_force;
+    public float max_distance_parent;
+    public float min_distance_parent;
+    public float distance_tolerance;
+    public float max_neighbour_distance;
+    public float min_neighbour_distance;
+    public float distance_tolerance_neighbour;
+    public float min_force_apply;
 
     public List<Text> depth_count;
 
     //Submission Data
+    public Text text_selected_submission;
     public Submission marked_submission;
     public Text subreddit;
     public Text submission_author;
@@ -74,6 +89,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text submission_content;
     public Text submission_upvote;
     public Text submission_downvote;
+    public Text submission_replies;
 
     //Comment Data
     public Comment marked_comment;
@@ -95,16 +111,57 @@ public class UserInterfaceManager : MonoBehaviour {
 
     //Color Selection
     public Color color;
+    public float red_author = 255;
+    public float green_author = 255;
+    public float blue_author = 255;
+    public Text text_red_author;
+    public Text text_green_author;
+    public Text text_blue_author;
     public Image color_image;
     public int selected_material = 0;
 
     //Shader Selection
+    public Text text_selected_shader;
     public Color shader_color;
+    public float red_shader = 255;
+    public float green_shader = 255;
+    public float blue_shader = 255;
+    public Text text_red_shader;
+    public Text text_green_shader;
+    public Text text_blue_shader;
     public Image shader_color_image;
     public List<GameObject> shader_list;
     public int selected_shader = 0;
     public int shader_depth = 0;
     public GameObject Sample_Node;
+
+    //Orbit
+    public Text orbit_count;
+    public Color orbit_color;
+    public Image orbit_color_image;
+    public Text orbit_depth_value;
+    public float red_orbit = 255;
+    public float green_orbit = 255;
+    public float blue_orbit = 255;
+    public float alpha_orbit = 100;
+    public Text text_red_orbit;
+    public Text text_green_orbit;
+    public Text text_blue_orbit;
+    public Text text_alpha_orbit;
+
+    //Edge
+    public Text edge_count;
+    public Color edge_color;
+    public Image edge_color_image;
+    public Text edge_depth_value;
+    public float red_edge = 255;
+    public float green_edge = 255;
+    public float blue_edge = 255;
+    public float alpha_edge = 255;
+    public Text text_red_edge;
+    public Text text_green_edge;
+    public Text text_blue_edge;
+    public Text text_alpha_edge;
 
     //Size Transformations
     public Text text_transform_depth;
@@ -119,6 +176,8 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text text_highlight_author;
 
     public int author_depth = 0;
+    public int edge_depth = 0;
+    public int orbit_depth = 0;
 
     public Color author_color;
     public Image author_color_image;
@@ -158,6 +217,7 @@ public class UserInterfaceManager : MonoBehaviour {
     void OnEnable()
     {
         Node.SendComment += SetComment;
+        Node.SendOrbit += SetCommentOrbit;
         Node.AddComment += AddAuthorToInterface;
         Node.AuthorNode += AddAuthorNodesToInterface;
         Graph.SendSubmission += SetSubmission;
@@ -169,6 +229,7 @@ public class UserInterfaceManager : MonoBehaviour {
     void OnDisable()
     {
         Node.SendComment -= SetComment;
+        Node.SendOrbit -= SetCommentOrbit;
         Node.AddComment -= AddAuthorToInterface;
         Node.AuthorNode -= AddAuthorNodesToInterface;
         Graph.SendSubmission -= SetSubmission;
@@ -201,10 +262,12 @@ public class UserInterfaceManager : MonoBehaviour {
             if (id.Equals(submission_list[i].GetComponent<SubmissionUI>().submission.Id))
             {
                 selected_submission = i;
+                text_selected_submission.text = submission_list[i].GetComponent<SubmissionUI>().submission.Title;
             }
         }
     }
 
+    //Call Event
     public void SendForce()
     {
         Force(depth, force);
@@ -246,6 +309,7 @@ public class UserInterfaceManager : MonoBehaviour {
         MinForceEnable(depth, min_force_apply);
     }
 
+    //Set Value
     public void SetForce(string value)
     {
         text_force.text = value;
@@ -311,20 +375,63 @@ public class UserInterfaceManager : MonoBehaviour {
     //Hightlight Author
     public void EnableAuthorHighlight()
     {
+        HighlightBool(author_depth, text_highlight_author.text);
         ShaderManager.GetComponent<ShaderManager>().SendColorToNode(author_depth, author_list[selected_author].GetComponent<AuthorUI>().comment.Author, author_color);
         CreateNode(author_depth, text_highlight_author.text);
     }
     public void DisableAuthorHighlight()
     {
-        DeleteAuthorNodes();
+        HighlightBool(author_depth, text_highlight_author.text);
         ShaderManager.GetComponent<ShaderManager>().SendColorToNode(author_depth, author_list[selected_author].GetComponent<AuthorUI>().comment.Author, shader_color);
-        
+        DeleteAuthorNodes();
     }
     public void DisableAuthorHighlightAll()
     {
-        DeleteAuthorNodesAll();
+        HighlightBool(author_depth, text_highlight_author.text);
         ShaderManager.GetComponent<ShaderManager>().SendColorToNode(0, author_list[selected_author].GetComponent<AuthorUI>().comment.Author, shader_color);
-        
+        DeleteAuthorNodesAll();
+    }
+
+    //Edge
+    public void ColorEdge()
+    {
+        SetEdgeColor(edge_depth, edge_color);
+    }
+    public void SendEnableEdge()
+    {
+        EnableEdge(edge_depth);
+        SetEdgeColor(edge_depth, edge_color);
+    }
+    public void SendDisableEdge()
+    {
+        DisableEdge(edge_depth);
+    }
+
+    //Orbit
+    public void SendCreateOrbit()
+    {
+        CreateOrbit(orbit_depth, orbit_color, max_distance_parent);
+    }
+    public void SendCreateAllOrbits()
+    {
+        int maxdepth = GraphManager.GetComponent<GraphManager>().Submission[0].GetComponent<Graph>().max_depth;
+        for (int i = 1; i<=maxdepth;++i)
+        {
+            CreateOrbit(i, orbit_color, max_distance_parent);
+        }
+    }
+    public void SendDeleteOrbit()
+    {
+        DeleteOrbit(orbit_depth);
+    }
+    public void SendDeleteAllOrbits()
+    {
+        int maxdepth = GraphManager.GetComponent<GraphManager>().Submission[0].GetComponent<Graph>().max_depth;
+        for (int i = 1; i <=maxdepth;++i)
+        {
+            DeleteOrbit(i);
+        }
+
     }
 
 
@@ -336,6 +443,7 @@ public class UserInterfaceManager : MonoBehaviour {
         }
     }
 
+    //Fill List
     public void AddSubmissionToInterface(Submission submission)
     {
         bool add_submission = true;
@@ -403,6 +511,7 @@ public class UserInterfaceManager : MonoBehaviour {
             node_ui.GetComponent<RectTransform>().localPosition = new Vector3(node_ui.GetComponent<RectTransform>().localPosition.x,
                node_ui.GetComponent<RectTransform>().localPosition.y,
                0);
+            node_ui.GetComponent<RectTransform>().localRotation = new Quaternion(0,0,0,0);
             node_ui.GetComponent<NodeUI>().SetText();
             node_list.Add(node_ui);
         }
@@ -433,56 +542,168 @@ public class UserInterfaceManager : MonoBehaviour {
     }
 
     //Set Color
+    public void SetColorAuthor()
+    {
+        author_color = new Color(red_author, green_author,blue_author);
+        author_color_image.color = author_color;
+
+    }
     public void SetColorAuthorRed(float value)
     {
-        author_color.r = value / 255;
-        author_color_image.color = color;
+        text_red_author.text = red_author.ToString();
+        red_author = value / 255;
+
+        SetColorAuthor();
     }
     public void SetColorAuthorGreen(float value)
     {
-        author_color.g = value / 255;
-        author_color_image.color = color;
+        text_green_author.text = green_author.ToString();
+        green_author = value / 255;
+
+        SetColorAuthor();
     }
     public void SetColorAuthorBlue(float value)
     {
-        author_color.b = value / 255;
-        author_color_image.color = color;
-    }
-    public void SetColorAuthorAlpha(float value)
-    {
-        author_color.a = value / 100;
-        author_color_image.color = color;
+        text_blue_author.text = blue_author.ToString();
+        blue_author = value / 255;
+
+        SetColorAuthor();
     }
 
+    public void SetColorShader()
+    {
+        shader_color = new Color(red_shader, green_shader,blue_shader);
+        shader_color_image.color = shader_color;
+        Sample_Node.GetComponent<Renderer>().material.color = shader_color;
+    }
     public void SetColorShaderRed(float value)
     {
-        shader_color.r = value / 255;
-        shader_color_image.color = color;
-        Sample_Node.GetComponent<Renderer>().material.color = color;
+        text_red_shader.text = red_shader.ToString();
+        red_shader = value / 255;
+
+        SetColorShader();
     }
     public void SetColorShaderGreen(float value)
     {
-        shader_color.g = value / 255;
-        shader_color_image.color = color;
-        Sample_Node.GetComponent<Renderer>().material.color = color;
+        text_green_shader.text = green_shader.ToString();
+        green_shader = value / 255;
+
+        SetColorShader();
     }
     public void SetColorShaderBlue(float value)
     {
-        shader_color.b = value / 255;
-        shader_color_image.color = color;
-        Sample_Node.GetComponent<Renderer>().material.color = color;
-    }
-    public void SetColorShaderAlpha(float value)
-    {
-        shader_color.a = value / 100;
-        shader_color_image.color = color;
-        Sample_Node.GetComponent<Renderer>().material.color = color;
+        text_blue_shader.text = blue_shader.ToString();
+        blue_shader = value / 255;
+
+        SetColorShader();
     }
 
+    public void SetColorOrbit()
+    {
+        orbit_color = new Color(red_orbit, green_orbit, blue_orbit, alpha_orbit);
+        orbit_color_image.color = orbit_color;
+    }
+    public void SetColorOrbitRed(float value)
+    {
+        text_red_orbit.text = red_orbit.ToString();
+        red_orbit = value / 255;
+
+        SetColorOrbit();
+    }
+    public void SetColorOrbitGreen(float value)
+    {
+        text_green_orbit.text = green_orbit.ToString();
+        green_orbit = value / 255;
+
+        SetColorOrbit();
+    }
+    public void SetColorOrbitBlue(float value)
+    {
+        text_blue_orbit.text = blue_orbit.ToString();
+        blue_orbit = value / 255;
+
+        SetColorOrbit();
+    }
+    public void SetColorOrbitAlpha(float value)
+    {
+        text_alpha_orbit.text = alpha_orbit.ToString();
+        alpha_orbit = value / 100;
+
+        SetColorOrbit();
+    }
+
+    public void SetColorEdge()
+    {
+        edge_color = new Color(red_edge, green_edge, blue_edge,alpha_edge);
+        edge_color_image.color = edge_color;
+    }
+    public void SetColorEdgeRed(float value)
+    {
+        text_red_edge.text = red_edge.ToString();
+        red_edge = value / 255;
+
+        SetColorEdge();
+    }
+    public void SetColorEdgeGreen(float value)
+    {
+        text_green_edge.text = green_edge.ToString();
+        green_edge = value / 255;
+
+        SetColorEdge();
+    }
+    public void SetColorEdgeBlue(float value)
+    {
+        text_blue_edge.text = blue_edge.ToString();
+        blue_edge = value / 255;
+
+        SetColorEdge();
+    }
+    public void SetColorEdgeAlpha(float value)
+    {
+        text_alpha_edge.text = alpha_edge.ToString();
+        alpha_edge = value / 255;
+
+        SetColorEdge();
+    }
+
+    //Shader Text
+    public void SetShaderText(string name)
+    {
+        text_selected_shader.text = name;
+    }
     public void SelectMaterial(int id)
     {
         Sample_Node.GetComponent<Renderer>().material = ShaderManager.GetComponent<ShaderManager>().Material[id];
         selected_material = id;
+    }
+    public void SetShaderDepthText(string value)
+    {
+        shader_depth = int.Parse(value);
+    }
+
+    //Orbit
+    public void SetOrbitDepth(string value)
+    {
+        orbit_depth_value.text = value;
+        orbit_depth = int.Parse(value);
+    }
+
+    //Edge
+    public void SetEdgeDepth(string value)
+    {
+        edge_depth_value.text = value;
+        edge_depth = int.Parse(value);
+
+    }
+
+    public void SendShader()
+    {
+        ShaderManager.GetComponent<ShaderManager>().SendMaterialToNode(shader_depth, selected_material);
+    }
+
+    public void SendColorUnHighlightedNodes()
+    {
+        ShaderManager.GetComponent<ShaderManager>().SendColorToNode(shader_depth, shader_color);
     }
 
     public void HighlightNodesByAuthor()
@@ -546,6 +767,7 @@ public class UserInterfaceManager : MonoBehaviour {
         submission_content.text = submission.Content;
         submission_upvote.text = submission.Upvote.ToString();
         submission_downvote.text = submission.Downvote.ToString();
+        submission_replies.text = CountDepth(submission).ToString();
     }
 
     public void SetComment(Comment comment)
@@ -559,17 +781,62 @@ public class UserInterfaceManager : MonoBehaviour {
         comment_likes.text = comment.Likes.ToString();
         comment_upvote.text = comment.Upvote.ToString();
         comment_downvote.text = comment.Downvote.ToString();
-        comment_reply_count.text = comment.Comments.CommentArray.Length.ToString();
+        if (comment.Comments.CommentArray.Length != null)
+        {
+            comment_reply_count.text = (GetDepth(comment)-1).ToString();
+        }
+        else
+        {
+            comment_reply_count.text = "0";
+        }
+        
+        SelectAuthor(comment.Author);
+
+    }
+
+    public void SetCommentOrbit(int orbit)
+    {
+        comment_orbit.text = orbit.ToString();
     }
 
     public void CreateGraph()
     {
         GraphManager.GetComponent<GraphManager>().CreateGraph(selected_submission);
+        SetSubmission(GraphManager.GetComponent<GraphManager>().Submission[0].GetComponent<Graph>().submission);
+        orbit_count.text = GraphManager.GetComponent<GraphManager>().Submission[0].GetComponent<Graph>().max_depth.ToString();
+        edge_count.text = GraphManager.GetComponent<GraphManager>().Submission[0].GetComponent<Graph>().max_depth.ToString();
     }
 
     public void DeleteGraph()
     {
         GraphManager.GetComponent<GraphManager>().DeleteGraph(0);
+    }
+
+    public int CountDepth(Submission submission)
+    {
+        int count = 0;
+        if (submission.Comments != null)
+        {
+            foreach (Comment comment in submission.Comments)
+            {
+                count += GetDepth(comment);
+            }
+        }
+        return count;
+    }
+
+    public int GetDepth(Comment _comment)
+    {
+        int count = 1;
+        if (_comment.Comments.CommentArray != null)
+        {
+            foreach (Comment comment in _comment.Comments.CommentArray)
+            {
+                count += GetDepth(comment);
+            }
+        }
+        return count;
+
     }
 
 

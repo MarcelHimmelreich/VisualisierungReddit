@@ -26,6 +26,9 @@ public class Graph : MonoBehaviour {
     public List<int> depth_counter_done = new List<int>();
     public List<int> depth_counter_all = new List<int>();
 
+    public GameObject prefab_orbit;
+    public List<GameObject> orbit_list;
+
     //Property
     public bool created = false;
     public bool castGraph = false;
@@ -50,13 +53,17 @@ public class Graph : MonoBehaviour {
 
     void OnEnable() {
         Node.SendVerticesCount += CountVertices;
-        Node.SendDepth += AddDepthCounter; 
+        Node.SendDepth += AddDepthCounter;
+        UserInterfaceManager.CreateOrbit += CreateOrbit;
+        UserInterfaceManager.DeleteOrbit += DeleteOrbit;
     }
 
     void OnDisable()
     {
         Node.SendVerticesCount -= CountVertices;
         Node.SendDepth -= AddDepthCounter;
+        UserInterfaceManager.CreateOrbit -= CreateOrbit;
+        UserInterfaceManager.DeleteOrbit -= DeleteOrbit;
     }
 
     void OnMouseDown()
@@ -82,7 +89,7 @@ public class Graph : MonoBehaviour {
     {
         if (depth > max_depth)
         {
-            for (int i = 0; i<depth-max_depth;++i)
+            for (int i = 0; i < depth - max_depth; ++i)
             {
                 NodesPerDepth.Add(new List<GameObject>());
             }
@@ -124,7 +131,7 @@ public class Graph : MonoBehaviour {
         {
             depth_counter_done.Add(1);
         }
-        else if(depth > 0)
+        else if (depth > 0)
         {
             ++depth_counter_done[depth];
         }
@@ -149,11 +156,11 @@ public class Graph : MonoBehaviour {
         {
             depth_counter_all.Add(value);
         }
-        else if(depth > 0)
+        else if (depth > 0)
         {
             Debug.Log("Depth: " + (depth));
             Debug.Log("Depth Count:" + depth_counter_all.Count);
-            depth_counter_all[depth-1] += value;
+            depth_counter_all[depth - 1] += value;
         }
 
     }
@@ -236,5 +243,52 @@ public class Graph : MonoBehaviour {
     }
 
     public void CastEdge() {
+    }
+
+    public void CreateOrbit(int _depth, Color color, float maxdistance)
+    {
+        bool overwrite_orbit = false;
+        foreach(GameObject orbit in orbit_list)
+        {
+            if (depth == orbit.GetComponent<Orbit>().depth)
+            {
+                overwrite_orbit = true;
+            }
+        }
+        if (overwrite_orbit)
+        {
+            DeleteOrbit(_depth);
+            GameObject temp_orbit = Instantiate(prefab_orbit, transform.position, transform.rotation) as GameObject;
+            temp_orbit.GetComponent<Orbit>().depth = _depth;
+            temp_orbit.GetComponent<Renderer>().material.color = color;
+            temp_orbit.transform.localScale = new Vector3(maxdistance* _depth * 2, maxdistance* _depth * 2, maxdistance* _depth * 2);
+            orbit_list.Add(temp_orbit);
+        }
+        else
+        {
+            GameObject temp_orbit = Instantiate(prefab_orbit, transform.position, transform.rotation) as GameObject;
+            temp_orbit.GetComponent<Orbit>().depth = _depth;
+            temp_orbit.GetComponent<Renderer>().material.color = color;
+            temp_orbit.transform.localScale = new Vector3(maxdistance * _depth * 2, maxdistance * _depth * 2, maxdistance * _depth * 2);
+            orbit_list.Add(temp_orbit);
+        }
+    }
+
+    public void DeleteOrbit(int depth)
+    {
+        foreach (GameObject orbit in orbit_list)
+        {
+            if (orbit.GetComponent<Orbit>().depth == depth || depth == 0)
+            {
+                GameObject temp_orbit = orbit;
+                orbit_list.Remove(temp_orbit);
+                Destroy(temp_orbit);
+                DeleteOrbit(depth);
+                break;
+            }
+            
+
+        }
+
     }
 }

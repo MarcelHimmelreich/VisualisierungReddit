@@ -13,6 +13,7 @@ public class ShaderManager : MonoBehaviour {
 
     public delegate void ColorEvent(int depth, Color color);
     public static event ColorEvent SendColor;
+    public static event ColorEvent SendColorShader;
 
     public delegate void ColorEventAuthor(int depth, string author, Color color);
     public static event ColorEventAuthor SendColorAuthor;
@@ -57,6 +58,11 @@ public class ShaderManager : MonoBehaviour {
     public void SendColorToNode(int depth, int id)
     {
         SendColor(depth, Colors[id]);
+    }
+
+    public void SendColorToNode(int depth, Color color)
+    {
+        SendColorShader(depth, color);
     }
 
     public void SendColorGradientToNode()
