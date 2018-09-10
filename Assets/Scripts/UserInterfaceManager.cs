@@ -19,6 +19,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public static event NodeSend MinForceEnable;
     public static event NodeSend MaxScale;
     public static event NodeSend DisableScale;
+    public static event NodeSend NodeSize;
 
     public delegate void NodeComment();
     public static event NodeComment AddComment;
@@ -63,6 +64,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public Text text_min_neighbour_distance;
     public Text text_distance_tolerance_neighbour;
     public Text text_min_force_apply;
+    public Text text_node_size;
 
     public int depth;
     public float force;
@@ -75,6 +77,7 @@ public class UserInterfaceManager : MonoBehaviour {
     public float min_neighbour_distance;
     public float distance_tolerance_neighbour;
     public float min_force_apply;
+    public float min_node_size;
 
     public List<Text> depth_count;
 
@@ -201,6 +204,16 @@ public class UserInterfaceManager : MonoBehaviour {
     public List<GameObject> node_list;
     public int selected_node = 0;
 
+    //Skybox
+    public Color background_color;
+    public Material Background;
+    public Image background_color_image;
+    public float red_background = 255;
+    public float green_background = 255;
+    public float blue_background = 255;
+    public Text text_red_background;
+    public Text text_green_background;
+    public Text text_blue_background;
 
 
 
@@ -308,6 +321,10 @@ public class UserInterfaceManager : MonoBehaviour {
     {
         MinForceEnable(depth, min_force_apply);
     }
+    public void SendNodeSize()
+    {
+        NodeSize(0, min_node_size);
+    }
 
     //Set Value
     public void SetForce(string value)
@@ -344,6 +361,12 @@ public class UserInterfaceManager : MonoBehaviour {
         text_min_force_apply.text = value;
         min_force_apply = float.Parse(value);
         SendMinForceEnable();
+    }
+    public void SetNodeSize(string value)
+    {
+        text_node_size.text = value.ToString();
+        min_node_size = float.Parse(value);
+        SendNodeSize();
     }
 
     public void SetSizeDepth(string value)
@@ -502,7 +525,7 @@ public class UserInterfaceManager : MonoBehaviour {
         bool add_author_node = true;
         for (int i = 0; i < node_list.Count; ++i)
         {
-            if (comment.Id.Equals(node_list[i].GetComponent<NodeUI>().comment.Id))
+            if (comment.Id == node_list[i].GetComponent<NodeUI>().comment.Id)
             {
                 add_author_node = false;
             }
@@ -517,10 +540,11 @@ public class UserInterfaceManager : MonoBehaviour {
             node_ui.GetComponent<RectTransform>().localPosition = new Vector3(node_ui.GetComponent<RectTransform>().localPosition.x,
                node_ui.GetComponent<RectTransform>().localPosition.y,
                0);
+            node_ui.GetComponent<RectTransform>().localRotation = new Quaternion(0, 0, 0, 0);
             node_ui.GetComponent<NodeUI>().SetText();
 
         }
-        SetNodeParent();
+        //SetNodeParent();
     }
 
     public void SetNodeParent()
@@ -678,6 +702,34 @@ public class UserInterfaceManager : MonoBehaviour {
         alpha_edge = value / 255;
 
         SetColorEdge();
+    }
+
+    public void SetColorBackground()
+    {
+        background_color = new Color(red_background, green_background, blue_background);
+        background_color_image.color = background_color;
+        Background.SetColor("_Tint", background_color);
+    }
+    public void SetColorBackgroundRed(float value)
+    {
+        text_red_background.text = red_background.ToString();
+        red_background = value / 255;
+
+        SetColorBackground();
+    }
+    public void SetColorBackgroundGreen(float value)
+    {
+        text_green_background.text = green_background.ToString();
+        green_background = value / 255;
+
+        SetColorBackground();
+    }
+    public void SetColorBackgroundBlue(float value)
+    {
+        text_blue_background.text = blue_background.ToString();
+        blue_background = value / 255;
+
+        SetColorBackground();
     }
 
     //Shader Text

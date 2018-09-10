@@ -161,6 +161,7 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.EnableEdge += EnableEdge;
         UserInterfaceManager.DisableEdge += DisableEdge;
         UserInterfaceManager.SetEdgeColor += SetLineColour;
+        UserInterfaceManager.NodeSize += SetNodeSize;
     }
 
     void OnDisable()
@@ -199,6 +200,7 @@ public class Node : MonoBehaviour {
         UserInterfaceManager.EnableEdge -= EnableEdge;
         UserInterfaceManager.DisableEdge -= DisableEdge;
         UserInterfaceManager.SetEdgeColor -= SetLineColour;
+        UserInterfaceManager.NodeSize -= SetNodeSize;
     }
 
     void OnMouseDown()
@@ -972,6 +974,17 @@ public class Node : MonoBehaviour {
         else if (_depth == 0)
         {
             maxscale = value;
+        }
+    }
+    public void SetNodeSize(int _depth, float value)
+    {
+        if (depth == _depth)
+        {
+            NodeMesh.transform.localScale = new Vector3(value, value, value);
+        }
+        else if (_depth == 0)
+        {
+            NodeMesh.transform.localScale = new Vector3(value, value, value);
         }
     }
 
