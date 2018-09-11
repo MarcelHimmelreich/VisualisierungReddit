@@ -131,6 +131,7 @@ public class Node : MonoBehaviour {
 
     void OnEnable()
     {
+        NodeUI.SendCommentID += SetCameraTarget;
         Graph.count += sendVerticesCount;
         Graph.ApplyForce += SetApplyByDepth;
         GraphManager.CreateParentComments += GetParentComments;
@@ -169,6 +170,7 @@ public class Node : MonoBehaviour {
 
     void OnDisable()
     {
+        NodeUI.SendCommentID -=SetCameraTarget;
         Graph.count -= sendVerticesCount;
         Graph.ApplyForce -= SetApplyByDepth;
         GraphManager.CreateParentComments -= GetParentComments;
@@ -210,7 +212,7 @@ public class Node : MonoBehaviour {
     {
         SendComment(comment);
         SendOrbit(depth);
-        camera.GetComponent<FPSController>().target = this.gameObject;
+        camera.GetComponent<CameraMovement>().target = this.gameObject;
     }
 
     public IEnumerator StartCountdown(float countdownValue)
@@ -223,6 +225,14 @@ public class Node : MonoBehaviour {
         if (bounce_radius != null)
         {
             bounce_radius.enabled = true;
+        }
+    }
+
+    public void SetCameraTarget(string id)
+    {
+        if (comment.Id.Equals(id))
+        {
+            camera.GetComponent<CameraMovement>().target = this.gameObject;
         }
     }
 

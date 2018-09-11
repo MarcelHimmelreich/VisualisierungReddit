@@ -9,6 +9,9 @@ public class NodeUI : MonoBehaviour {
     public delegate void InterfaceNode(string author);
     public static event InterfaceNode SelectAuthor;
 
+    public delegate void NodeSend(string id);
+    public static event NodeSend SendCommentID;
+
     public Comment comment;
     public Image background;
     public Text upvote;
@@ -43,6 +46,11 @@ public class NodeUI : MonoBehaviour {
 
         //Select Author
         SelectAuthor(comment.Author);
+    }
+
+    public void SendCommentIDToNodes()
+    {
+        SendCommentID(comment.Id);
     }
 
     // Use this for initialization
